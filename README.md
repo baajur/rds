@@ -1,6 +1,8 @@
 RDS
 ===
 
+[![Build Status](https://travis-ci.org/haxelion/rds.svg?branch=master)](https://travis-ci.org/haxelion/rds)
+
 Rust Data Science is an attempt at bringing a solid basis for doing data science under rust. 
 There already exist several scientific / data science library for rust but I'm not satisfied with 
 their design. Following the [famous xkcd joke](https://xkcd.com/927/), this is just another attempt.
