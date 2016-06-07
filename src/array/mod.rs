@@ -1,6 +1,8 @@
 use std::iter::repeat;
 use std::ops::{Index, IndexMut};
 
+pub mod csv;
+
 pub trait NDData<T> {
 
     fn dim(&self) -> usize;
