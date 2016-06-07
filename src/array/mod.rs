@@ -69,6 +69,22 @@ impl<T : Clone> Array<T> {
             data : data.get_data().to_vec().into_boxed_slice(),
         }
     }
+
+    pub fn from_slice(shape : &[usize], data : &[T]) -> Array<T> {
+        let mut strides : Vec<usize> = repeat(0usize).take(shape.len()).collect();
+        let mut size = 1usize;
+        for i in 0..shape.len() {
+            let revidx = shape.len() - i - 1;
+            strides[revidx] = size;
+            size *= shape[revidx];
+        }
+        assert!(size == data.len());
+        Array {
+            shape : shape.to_vec(),
+            strides : strides,
+            data : data.to_vec().into_boxed_slice(),
+        }
+    }
 }
 
 

@@ -1,4 +1,4 @@
-use array::{Array, NDSliceable, NDSliceableMut};
+use array::{Array, NDData, NDSliceable, NDSliceableMut};
 
 #[test]
 fn indexing() {
@@ -68,6 +68,26 @@ fn copy() {
     for i in 0..3 {
         for j in 0..3 {
             assert!(array2[&[i,j][..]] == (i * j * 2) as f64);
+        }
+    }
+}
+
+#[test]
+fn from_slice() {
+    let mut array = Array::<f64>::new(&[3, 3, 3], 0.0);
+    for i in 0..3 {
+        for j in 0..3 {
+            for k in 0..3 {
+                array[&[i, j, k][..]] = (i * j * k) as f64;
+            }
+        }
+    }
+    let mut array2 = Array::from_slice(&[3, 3, 3], array.get_data());
+    for i in 0..3 {
+        for j in 0..3 {
+            for k in 0..3 {
+                assert!(array2[&[i,j,k][..]] == (i * j * k) as f64);
+            }
         }
     }
 }
