@@ -27,6 +27,11 @@ Plan
 On this basis we can hope to develop additional packages for linear algebra, statistics, 
 signal processing, machine learning, neural networks.
 
+Documentation
+-------------
+
+[Online documentation](https://haxelion.github.io/rds/target/doc/rds/index.html)
+
 Does it work ?
 --------------
 
