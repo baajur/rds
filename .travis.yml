@@ -7,4 +7,4 @@ matrix:
   allow_failures:
     - rust: nightly
 install:
-  - pip install numpy
+  - pip install --user numpy
