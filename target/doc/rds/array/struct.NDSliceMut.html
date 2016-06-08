@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `NDSliceMut` struct in crate `rds`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, NDSliceMut">
+
+    <title>rds::array::NDSliceMut - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>rds</a>::<wbr><a href='index.html'>array</a></p><script>window.sidebarCurrent = {name: 'NDSliceMut', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>rds</a>::<wbr><a href='index.html'>array</a>::<wbr><a class='struct' href=''>NDSliceMut</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-161' class='srclink' href='../../src/rds/src/array/mod.rs.html#37-41' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct NDSliceMut&lt;'a, T: 'a&gt; {
+    // some fields omitted
+}</pre><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;'a, T&gt; <a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt; for <a class='struct' href='../../rds/array/struct.NDSliceMut.html' title='rds::array::NDSliceMut'>NDSliceMut</a>&lt;'a, T&gt;</code></h3><div class='impl-items'><h4 id='method.dim' class='method'><code>fn <a href='../../rds/array/trait.NDData.html#tymethod.dim' class='fnname'>dim</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+<h4 id='method.shape' class='method'><code>fn <a href='../../rds/array/trait.NDData.html#tymethod.shape' class='fnname'>shape</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a></code></h4>
+<h4 id='method.strides' class='method'><code>fn <a href='../../rds/array/trait.NDData.html#tymethod.strides' class='fnname'>strides</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a></code></h4>
+<h4 id='method.size' class='method'><code>fn <a href='../../rds/array/trait.NDData.html#tymethod.size' class='fnname'>size</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+<h4 id='method.get_data' class='method'><code>fn <a href='../../rds/array/trait.NDData.html#tymethod.get_data' class='fnname'>get_data</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>T<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a></code></h4>
+<h4 id='method.get_data_raw' class='method'><code>unsafe fn <a href='../../rds/array/trait.NDData.html#tymethod.get_data_raw' class='fnname'>get_data_raw</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const T</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;'a, T: 'a&gt; <a class='trait' href='../../rds/array/trait.NDSliceable.html' title='rds::array::NDSliceable'>NDSliceable</a>&lt;'a, T&gt; for <a class='struct' href='../../rds/array/struct.NDSliceMut.html' title='rds::array::NDSliceMut'>NDSliceMut</a>&lt;'a, T&gt;</code></h3><div class='impl-items'><h4 id='method.slice' class='method'><code>fn <a href='../../rds/array/trait.NDSliceable.html#tymethod.slice' class='fnname'>slice</a>(&amp;'a self, idx: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='struct' href='../../rds/array/struct.NDSlice.html' title='rds::array::NDSlice'>NDSlice</a>&lt;'a, T&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;'a, T: 'a&gt; <a class='trait' href='../../rds/array/trait.NDSliceableMut.html' title='rds::array::NDSliceableMut'>NDSliceableMut</a>&lt;'a, T&gt; for <a class='struct' href='../../rds/array/struct.NDSliceMut.html' title='rds::array::NDSliceMut'>NDSliceMut</a>&lt;'a, T&gt;</code></h3><div class='impl-items'><h4 id='method.slice_mut' class='method'><code>fn <a href='../../rds/array/trait.NDSliceableMut.html#tymethod.slice_mut' class='fnname'>slice_mut</a>(&amp;'a mut self, idx: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='struct' href='../../rds/array/struct.NDSliceMut.html' title='rds::array::NDSliceMut'>NDSliceMut</a>&lt;'a, T&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;'a, 'b, T&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Index.html' title='core::ops::Index'>Index</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;'b [</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt; for <a class='struct' href='../../rds/array/struct.NDSliceMut.html' title='rds::array::NDSliceMut'>NDSliceMut</a>&lt;'a, T&gt;</code></h3><div class='impl-items'><h4 id='associatedtype.Output' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Index.html#associatedtype.Output' class='type'>Output</a> = T</code></h4>
+<h4 id='method.index' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Index.html#tymethod.index' class='fnname'>index</a>&lt;'c&gt;(&amp;'c self, idx: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;'b [</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; &amp;'c T</code></h4>
+</div><h3 class='impl'><code>impl&lt;'a, 'b, T&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.IndexMut.html' title='core::ops::IndexMut'>IndexMut</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;'b [</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt; for <a class='struct' href='../../rds/array/struct.NDSliceMut.html' title='rds::array::NDSliceMut'>NDSliceMut</a>&lt;'a, T&gt;</code></h3><div class='impl-items'><h4 id='method.index_mut' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.IndexMut.html#tymethod.index_mut' class='fnname'>index_mut</a>&lt;'c&gt;(&amp;'c mut self, idx: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; &amp;'c mut T</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "rds";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>
