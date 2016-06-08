@@ -6,5 +6,5 @@ rust:
 matrix:
   allow_failures:
     - rust: nightly
-before-install:
+install:
   - pip install numpy
