@@ -2,6 +2,7 @@ use std::iter::repeat;
 use std::ops::{Index, IndexMut};
 
 pub mod csv;
+pub mod numpy;
 
 pub trait NDData<T> {
 
