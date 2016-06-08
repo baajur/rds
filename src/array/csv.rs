@@ -2,133 +2,197 @@ extern crate csv;
 
 use std::clone::Clone;
 use std::error::Error;
-use std::io::{Read,Write};
 use std::fmt::Display;
+use std::fs::File;
+//use std::marker::Sized;
+//use std::ops::Index;
 use std::str::FromStr;
 
-use array::{Array, NDData};
+use array::{NDArray, NDData};
 
-pub fn array1d_from_csv_row<T : FromStr + Clone>(path : &str, row_idx : usize) -> Result<Array<T>, String> {
-    match csv::Reader::from_file(path) {
-        Ok(r) => array1d_from_csvreader_row(r.flexible(true), row_idx),
-        Err(e) => Err(e.description().to_string())
-    }
+pub struct CSVFile {
+    path : String,
+    pub header : bool,
+    pub flexible : bool,
+    pub delimiter : u8,
+    pub quote : u8,
 }
 
-pub fn array1d_from_csvreader_row<R : Read, T : FromStr + Clone>(mut reader : csv::Reader<R>, row_idx : usize) -> Result<Array<T>, String> {
-    let mut data = Vec::<T>::new();
-    let mut shape = [0usize;1];
-    match reader.records().nth(row_idx) {
-        Some(Ok(record)) => {
-            shape[0] = record.len();
-            for item in record {
-                match T::from_str(&item[..]) {
-                    Ok(value) => {
-                        data.push(value);
-                    },
-                    Err(_) => {
-                        return Err(format!("Failed to parse value '{:}' at column {:} of row {:}", item, shape[1], row_idx));
-                    }
-                }
-            }
-        },
-        Some(Err(e)) => {
-            return Err(e.description().to_string());
-        },
-        None => {
-            return Err(format!("Row {:} not found", row_idx));
+impl CSVFile {
+    pub fn new(path : &str) -> CSVFile {
+        CSVFile {
+            path : path.to_string(),
+            header : false,
+            flexible : false,
+            delimiter : b',',
+            quote : b'"',
         }
     }
-    return Ok(Array::from_slice(&shape[..], &data[..]));
-}
 
-pub fn array1d_from_csv_column<T : FromStr + Clone>(path : &str, column_idx : usize) -> Result<Array<T>, String> {
-    match csv::Reader::from_file(path) {
-        Ok(r) => array1d_from_csvreader_row(r, column_idx),
-        Err(e) => Err(e.description().to_string())
-    }
-}
-
-pub fn array1d_from_csvreader_column<R : Read, T : FromStr + Clone>(mut reader : csv::Reader<R>, column_idx : usize) -> Result<Array<T>, String> {
-    let mut data = Vec::<T>::new();
-    let mut shape = [0usize;1];
-    for record in reader.records() {
-        match record {
-            Ok(record) => {
-                shape[0] += 1;
-                if record.len() > column_idx {
-                    match T::from_str(&record[column_idx][..]) {
-                        Ok(value) => {
-                            data.push(value);
-                        },
-                        Err(_) => {
-                            return Err(format!("Failed to parse value '{:}' at row {:} of column {:}", record[column_idx], shape[1], column_idx));
-                        }
-                    }
-                }
-                else {
-                    return Err(format!("Column {:} not found in row {:}", column_idx, shape[1]));
-                }
-            },
+    fn get_reader(&self) -> Result<csv::Reader<File>, String> {
+        match csv::Reader::from_file(&self.path[..]) {
+            Ok(r) => {
+                return Ok(r.has_headers(self.header)
+                           .flexible(self.flexible)
+                           .delimiter(self.delimiter)
+                           .quote(self.quote));
+            }
             Err(e) => {
-                return Err(e.description().to_string());
+                Err(e.description().to_string())
             }
         }
     }
-    return Ok(Array::from_slice(&shape[..], &data[..]));
-}
 
-pub fn array2d_from_csv<T : FromStr + Clone>(path : &str) -> Result<Array<T>, String> {
-    match csv::Reader::from_file(path) {
-        Ok(r) => array2d_from_csvreader(r),
-        Err(e) => Err(e.description().to_string())
+    #[allow(unused_mut)] 
+    fn get_writer(&mut self) -> Result<csv::Writer<File>, String> {
+        match csv::Writer::from_file(&self.path[..]) {
+            Ok(w) => {
+                return Ok(w.flexible(self.flexible)
+                           .delimiter(self.delimiter)
+                           .quote(self.quote));
+            }
+            Err(e) => {
+                Err(e.description().to_string())
+            }
+        }
     }
-}
 
-pub fn array2d_from_csvreader<R : Read, T : FromStr + Clone>(mut reader : csv::Reader<R>) -> Result<Array<T>, String> {
-    let mut data = Vec::<T>::new();
-    let mut shape = [0usize;2];
-    for record in reader.records() {
-        match record {
-            Ok(record) => {
-                shape[0] += 1;
-                shape[1] = record.len();
+    pub fn read_row<T : FromStr + Clone>(&self, row_idx : usize) -> Result<NDArray<T>, String> {
+        let mut data = Vec::<T>::new();
+        let mut shape = [0usize;1];
+        let mut reader = match self.get_reader() {
+            Ok(r) => r,
+            Err(e) => return Err(e),
+        };
+
+        match reader.records().nth(row_idx) {
+            Some(Ok(record)) => {
+                shape[0] = record.len();
                 for item in record {
                     match T::from_str(&item[..]) {
                         Ok(value) => {
                             data.push(value);
                         },
                         Err(_) => {
-                            return Err(format!("Failed to parse value '{:}' at record {:}", item, shape[1]));
+                            return Err(format!("Failed to parse value '{:}' at column {:} of row {:}", item, shape[1], row_idx));
                         }
                     }
                 }
             },
-            Err(e) => {
+            Some(Err(e)) => {
+                return Err(e.description().to_string());
+            },
+            None => {
+                return Err(format!("Row {:} not found", row_idx));
+            }
+        }
+        return Ok(NDArray::from_slice(&shape[..], &data[..]));
+    }
+
+    pub fn read_column<T : FromStr + Clone>(&self, column_idx : usize) -> Result<NDArray<T>, String> {
+        let mut data = Vec::<T>::new();
+        let mut shape = [0usize;1];
+        let mut reader = match self.get_reader() {
+            Ok(r) => r,
+            Err(e) => return Err(e),
+        };
+
+        for record in reader.records() {
+            match record {
+                Ok(record) => {
+                    shape[0] += 1;
+                    if record.len() > column_idx {
+                        match T::from_str(&record[column_idx][..]) {
+                            Ok(value) => {
+                                data.push(value);
+                            },
+                            Err(_) => {
+                                return Err(format!("Failed to parse value '{:}' at row {:} of column {:}", record[column_idx], shape[1], column_idx));
+                            }
+                        }
+                    }
+                    else {
+                        return Err(format!("Column {:} not found in row {:}", column_idx, shape[1]));
+                    }
+                },
+                Err(e) => {
+                    return Err(e.description().to_string());
+                }
+            }
+        }
+        return Ok(NDArray::from_slice(&shape[..], &data[..]));
+    }
+
+    pub fn read_2darray<T : FromStr + Clone>(&self) -> Result<NDArray<T>, String> {
+        let mut data = Vec::<T>::new();
+        let mut shape = [0usize;2];
+        let mut reader = match self.get_reader() {
+            Ok(r) => r,
+            Err(e) => return Err(e),
+        };
+
+        for record in reader.records() {
+            match record {
+                Ok(record) => {
+                    shape[0] += 1;
+                    shape[1] = record.len();
+                    for item in record {
+                        match T::from_str(&item[..]) {
+                            Ok(value) => {
+                                data.push(value);
+                            },
+                            Err(_) => {
+                                return Err(format!("Failed to parse value '{:}' at record {:}", item, shape[1]));
+                            }
+                        }
+                    }
+                },
+                Err(e) => {
+                    return Err(e.description().to_string());
+                }
+            }
+        }
+        return Ok(NDArray::from_slice(&shape[..], &data[..]));
+    }
+
+    pub fn write_data<T : Display>(&mut self, data : &NDData<T>) -> Result<(), String>  {
+        assert!(data.dim() <= 2);
+
+        let mut writer = match self.get_writer() {
+            Ok(w) => w,
+            Err(e) => return Err(e),
+        };
+
+        if data.dim() == 2 {
+            for i in 0..data.shape()[0] {
+                let mut record = Vec::<String>::new();
+                for j in 0..data.shape()[1] {
+                    let idx = i * data.strides()[0] + j * data.strides()[1];
+                    record.push(format!("{}", data.get_data()[idx]))
+                }
+                if let Err(e) = writer.write(record.into_iter()) {
+                    return Err(e.description().to_string());
+                }
+            }
+        }
+        else if data.dim() == 1 {
+            let mut record = Vec::<String>::new();
+            for i in 0..data.shape()[1] {
+                let idx = i * data.strides()[0];
+                record.push(format!("{}", data.get_data()[idx]))
+            }
+            if let Err(e) = writer.write(record.into_iter()) {
                 return Err(e.description().to_string());
             }
         }
-    }
-    return Ok(Array::from_slice(&shape[..], &data[..]));
-}
-
-pub fn array2d_to_csv<T : Display>(path : &str, array : &Array<T>) -> Result<(), String> {
-    match csv::Writer::from_file(path) {
-        Ok(w) => array2d_to_csvwriter(w, array),
-        Err(e) => Err(e.description().to_string())
-    }
-}
-
-pub fn array2d_to_csvwriter<W : Write, T : Display>(mut writer : csv::Writer<W>, array : &Array<T>) -> Result<(), String> {
-    assert!(array.dim() == 2);
-    for i in 0..array.shape()[0] {
-        let mut record = Vec::<String>::new();
-        for j in 0..array.shape()[1] {
-            record.push(format!("{}", array[&[i, j][..]]))
+        else if data.dim() == 0 {
+            let mut record = Vec::<String>::new();
+            record.push(format!("{}", data.get_data()[0]));
+            if let Err(e) = writer.write(record.into_iter()) {
+                return Err(e.description().to_string());
+            }
         }
-        if let Err(e) = writer.write(record.into_iter()) {
-            return Err(e.description().to_string());
-        }
+
+        return Ok(());
     }
-    return Ok(());
 }

@@ -40,14 +40,14 @@ pub struct NDSliceMut<'a, T : 'a> {
     data : &'a mut [T],
 }
 
-pub struct Array<T> {
+pub struct NDArray<T> {
     shape : Vec<usize>,
     strides : Vec<usize>,
     data : Box<[T]>,
 }
 
-impl<T : Clone> Array<T> {
-    pub fn new(shape : &[usize], v : T) -> Array<T> {
+impl<T : Clone> NDArray<T> {
+    pub fn new(shape : &[usize], v : T) -> NDArray<T> {
         let mut strides : Vec<usize> = repeat(0usize).take(shape.len()).collect();
         let mut size = 1usize;
         for i in 0..shape.len() {
@@ -57,22 +57,22 @@ impl<T : Clone> Array<T> {
         }
         let alloc : Vec<T> = repeat(v).take(size).collect();
 
-        return Array {
+        return NDArray {
             shape : shape.to_vec(),
             strides : strides,
             data : alloc.into_boxed_slice(),
         }
     }
 
-    pub fn copy<R : NDData<T>>(data : R) -> Array<T> {
-        Array {
+    pub fn copy<R : NDData<T>>(data : R) -> NDArray<T> {
+        NDArray {
             shape : data.shape().to_vec(),
             strides : data.strides().to_vec(),
             data : data.get_data().to_vec().into_boxed_slice(),
         }
     }
 
-    pub fn from_slice(shape : &[usize], data : &[T]) -> Array<T> {
+    pub fn from_slice(shape : &[usize], data : &[T]) -> NDArray<T> {
         let mut strides : Vec<usize> = repeat(0usize).take(shape.len()).collect();
         let mut size = 1usize;
         for i in 0..shape.len() {
@@ -81,7 +81,7 @@ impl<T : Clone> Array<T> {
             size *= shape[revidx];
         }
         assert!(size == data.len());
-        Array {
+        NDArray {
             shape : shape.to_vec(),
             strides : strides,
             data : data.to_vec().into_boxed_slice(),
@@ -90,7 +90,7 @@ impl<T : Clone> Array<T> {
 }
 
 
-impl<T> NDData<T> for Array<T> { 
+impl<T> NDData<T> for NDArray<T> { 
 
     fn dim(&self) -> usize {
         self.shape.len()
@@ -117,7 +117,7 @@ impl<T> NDData<T> for Array<T> {
     }
 }
 
-impl<'a, T : 'a> NDSliceable<'a, T> for Array<T> {
+impl<'a, T : 'a> NDSliceable<'a, T> for NDArray<T> {
 
     fn slice(&'a self, idx : &[usize]) -> NDSlice<'a, T> {
         assert!(idx.len() <= self.shape.len());
@@ -135,7 +135,7 @@ impl<'a, T : 'a> NDSliceable<'a, T> for Array<T> {
     }
 }
 
-impl<'a, T : 'a> NDSliceableMut<'a, T> for Array<T> {
+impl<'a, T : 'a> NDSliceableMut<'a, T> for NDArray<T> {
 
     fn slice_mut(&'a mut self, idx : &[usize]) -> NDSliceMut<'a, T> {
         assert!(idx.len() <= self.shape.len());
@@ -153,7 +153,7 @@ impl<'a, T : 'a> NDSliceableMut<'a, T> for Array<T> {
     }
 }
 
-impl<'b, T> Index<&'b [usize]> for Array<T> {
+impl<'b, T> Index<&'b [usize]> for NDArray<T> {
     type Output = T;
 
     fn index<'c>(&'c self, idx : &'b [usize]) -> &'c T {
@@ -167,7 +167,7 @@ impl<'b, T> Index<&'b [usize]> for Array<T> {
     }
 }
 
-impl<'b, T> IndexMut<&'b [usize]> for Array<T> {
+impl<'b, T> IndexMut<&'b [usize]> for NDArray<T> {
 
     fn index_mut<'c>(&'c mut self, idx : &[usize]) -> &'c mut T {
         assert!(idx.len() == self.shape.len());
