@@ -6,10 +6,9 @@ use std::fs::File;
 use std::io::{Read,Write};
 use std::iter::repeat;
 use std::str::FromStr;
-use std::string::FromUtf8Error;
 
 use self::num::{FromPrimitive, ToPrimitive};
-use self::byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
+use self::byteorder::{ByteOrder, BigEndian, LittleEndian, ReadBytesExt, WriteBytesExt};
 
 use array::{NDArray, NDData};
 
@@ -58,6 +57,215 @@ fn extract_in_between(source : &str, start : &str, end : &str) -> Option<String>
     return Some(source[idx1..idx2].to_string());
 }
 
+fn read_to_u8<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+    match reader.read_u8() { 
+        Ok(v) => match T::from_u8(v) {
+            Some(c) => Ok(c),
+            None => return Err(format!("Failed to convert value from u8 to T"))
+        },
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn read_to_u16<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+    match reader.read_u16::<B>() { 
+        Ok(v) => match T::from_u16(v) {
+            Some(c) => Ok(c),
+            None => return Err(format!("Failed to convert value from u16 to T"))
+        },
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn read_to_u32<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+    match reader.read_u32::<B>() { 
+        Ok(v) => match T::from_u32(v) {
+            Some(c) => Ok(c),
+            None => return Err(format!("Failed to convert value from u32 to T"))
+        },
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn read_to_u64<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+    match reader.read_u64::<B>() { 
+        Ok(v) => match T::from_u64(v) {
+            Some(c) => Ok(c),
+            None => return Err(format!("Failed to convert value from u64 to T"))
+        },
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn read_to_i8<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+    match reader.read_i8() { 
+        Ok(v) => match T::from_i8(v) {
+            Some(c) => Ok(c),
+            None => return Err(format!("Failed to convert value from i8 to T"))
+        },
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn read_to_i16<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+    match reader.read_i16::<B>() { 
+        Ok(v) => match T::from_i16(v) {
+            Some(c) => Ok(c),
+            None => return Err(format!("Failed to convert value from i16 to T"))
+        },
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn read_to_i32<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+    match reader.read_i32::<B>() { 
+        Ok(v) => match T::from_i32(v) {
+            Some(c) => Ok(c),
+            None => return Err(format!("Failed to convert value from i32 to T"))
+        },
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn read_to_i64<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+    match reader.read_i64::<B>() { 
+        Ok(v) => match T::from_i64(v) {
+            Some(c) => Ok(c),
+            None => return Err(format!("Failed to convert value from i64 to T"))
+        },
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn read_to_f32<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+    match reader.read_f32::<B>() { 
+        Ok(v) => match T::from_f32(v) {
+            Some(c) => Ok(c),
+            None => return Err(format!("Failed to convert value from f32 to T"))
+        },
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn read_to_f64<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+    match reader.read_f64::<B>() { 
+        Ok(v) => match T::from_f64(v) {
+            Some(c) => Ok(c),
+            None => return Err(format!("Failed to convert value from f64 to T"))
+        },
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_u8<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    let c = match T::to_u8(&v) {
+        Some(c) => c,
+        None => return Err(format!("Failed to convert value from T to u8"))
+    };
+    match writer.write_u8(c) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_u16<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    let c = match T::to_u16(&v) {
+        Some(c) => c,
+        None => return Err(format!("Failed to convert value from T to u16"))
+    };
+    match writer.write_u16::<B>(c) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_u32<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    let c = match T::to_u32(&v) {
+        Some(c) => c,
+        None => return Err(format!("Failed to convert value from T to u32"))
+    };
+    match writer.write_u32::<B>(c) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_u64<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    let c = match T::to_u64(&v) {
+        Some(c) => c,
+        None => return Err(format!("Failed to convert value from T to u64"))
+    };
+    match writer.write_u64::<B>(c) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_i8<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    let c = match T::to_i8(&v) {
+        Some(c) => c,
+        None => return Err(format!("Failed to convert value from T to i8"))
+    };
+    match writer.write_i8(c) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_i16<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    let c = match T::to_i16(&v) {
+        Some(c) => c,
+        None => return Err(format!("Failed to convert value from T to i16"))
+    };
+    match writer.write_i16::<B>(c) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_i32<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    let c = match T::to_i32(&v) {
+        Some(c) => c,
+        None => return Err(format!("Failed to convert value from T to i32"))
+    };
+    match writer.write_i32::<B>(c) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_i64<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    let c = match T::to_i64(&v) {
+        Some(c) => c,
+        None => return Err(format!("Failed to convert value from T to i64"))
+    };
+    match writer.write_i64::<B>(c) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_f32<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    let c = match T::to_f32(&v) {
+        Some(c) => c,
+        None => return Err(format!("Failed to convert value from T to f32"))
+    };
+    match writer.write_f32::<B>(c) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_f64<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    let c = match T::to_f64(&v) {
+        Some(c) => c,
+        None => return Err(format!("Failed to convert value from T to f64"))
+    };
+    match writer.write_f64::<B>(c) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
 
 impl NumpyFile {
     pub fn new(path : &str) -> NumpyFile {
@@ -84,6 +292,7 @@ impl NumpyFile {
         }
     }
 
+    #[allow(unused_assignments)]
     pub fn read_header(&mut self, file : &mut File) -> Result<(),String> {
         let mut magic = [0u8;6];
         let mut version = [0u8;2];
@@ -184,6 +393,64 @@ impl NumpyFile {
 
         return Ok(());
     }
+    
+    fn write_header(&mut self, file : &mut File) -> Result<(),String> {
+        let mut header = Vec::<u8>::new();
+
+        if let Err(e) = file.write_all(&NUMPY_MAGIC) {
+            return Err(e.description().to_string());
+        }
+        if let Err(e) = file.write_all(&[1u8,0u8]) {
+            return Err(e.description().to_string());
+        }
+
+        header.extend_from_slice("{'descr': '".as_bytes());
+        header.push(
+            match self.endianess {
+                Endianess::BigEndian => b'>',
+                Endianess::LittleEndian => b'<',
+            }
+        );
+        header.extend_from_slice(
+            match self.dtype {
+                DType::U8  => "u1".as_bytes(),
+                DType::U16 => "u2".as_bytes(),
+                DType::U32 => "u4".as_bytes(),
+                DType::U64 => "u8".as_bytes(),
+                DType::I8  => "i1".as_bytes(),
+                DType::I16 => "i2".as_bytes(),
+                DType::I32 => "i4".as_bytes(),
+                DType::I64 => "i8".as_bytes(),
+                DType::F32 => "f4".as_bytes(),
+                DType::F64 => "f8".as_bytes(),
+           }
+        );
+        header.extend_from_slice("', 'fortran_order': ".as_bytes());
+        header.extend_from_slice(
+            match self.order {
+                Order::RowMajor => "False".as_bytes(),
+                Order::ColumnMajor => "True".as_bytes(),
+            }
+        );
+        header.extend_from_slice(", 'shape': (".as_bytes());
+        for s in & self.shape {
+            header.extend_from_slice(&format!("{}, ", s).into_bytes()[..]);
+        }
+        header.extend_from_slice("), }".as_bytes());
+
+        let pad = (header.len() + 11).wrapping_neg() % 16;
+        header.append(&mut repeat(b' ').take(pad).collect());
+        header.push(b'\n');
+
+        if let Err(e) = file.write_u16::<LittleEndian>(header.len() as u16) {
+            return Err(e.description().to_string());
+        }
+        if let Err(e) = file.write_all(&header[..]) {
+            return Err(e.description().to_string());
+        }
+
+        return Ok(());
+    }
 
     pub fn read_array<T : Clone + FromPrimitive>(&mut self) -> Result<NDArray<T>, String>  {
         let mut reader = match self.get_reader() {
@@ -194,97 +461,67 @@ impl NumpyFile {
             return Err(e);
         }
 
-        let readchain : Box<Fn(&mut File) -> Result<T, String>> = match self.dtype {
-            DType::U8 => Box::new(|ref mut reader| -> Result<T, String> {
-                match reader.read_u8() { 
-                    Ok(v) => match T::from_u8(v) {
-                        Some(c) => Ok(c),
-                        None => return Err(format!("Failed to convert value from u8 to T"))
-                    },
-                    Err(e) => return Err(e.description().to_string())
+        let readchain = match self.dtype {
+            DType::U8 => {
+                match self.endianess {
+                    Endianess::BigEndian    => read_to_u8::<T, BigEndian>,
+                    Endianess::LittleEndian => read_to_u8::<T, LittleEndian>,
                 }
-            }),
-            DType::U16 => Box::new(|ref mut reader| -> Result<T, String> {
-                match reader.read_u16::<LittleEndian>() { 
-                    Ok(v) => match T::from_u16(v) {
-                        Some(c) => Ok(c),
-                        None => return Err(format!("Failed to convert value from u16 to T"))
-                    },
-                    Err(e) => return Err(e.description().to_string())
+            },
+            DType::U16 => {
+                match self.endianess {
+                    Endianess::BigEndian    => read_to_u16::<T, BigEndian>,
+                    Endianess::LittleEndian => read_to_u16::<T, LittleEndian>,
                 }
-            }),
-            DType::U32 => Box::new(|ref mut reader| -> Result<T, String> {
-                match reader.read_u32::<LittleEndian>() { 
-                    Ok(v) => match T::from_u32(v) {
-                        Some(c) => Ok(c),
-                        None => return Err(format!("Failed to convert value from u32 to T"))
-                    },
-                    Err(e) => return Err(e.description().to_string())
+            },
+            DType::U32 => {
+                match self.endianess {
+                    Endianess::BigEndian    => read_to_u32::<T, BigEndian>,
+                    Endianess::LittleEndian => read_to_u32::<T, LittleEndian>,
                 }
-            }),
-            DType::U64 => Box::new(|ref mut reader| -> Result<T, String> {
-                match reader.read_u64::<LittleEndian>() { 
-                    Ok(v) => match T::from_u64(v) {
-                        Some(c) => Ok(c),
-                        None => return Err(format!("Failed to convert value from u64 to T"))
-                    },
-                    Err(e) => return Err(e.description().to_string())
+            },
+            DType::U64 => {
+                match self.endianess {
+                    Endianess::BigEndian    => read_to_u64::<T, BigEndian>,
+                    Endianess::LittleEndian => read_to_u64::<T, LittleEndian>,
                 }
-            }),
-            DType::I8 => Box::new(|ref mut reader| -> Result<T, String> {
-                match reader.read_i8() { 
-                    Ok(v) => match T::from_i8(v) {
-                        Some(c) => Ok(c),
-                        None => return Err(format!("Failed to convert value from i8 to T"))
-                    },
-                    Err(e) => return Err(e.description().to_string())
+            },
+            DType::I8 => {
+                match self.endianess {
+                    Endianess::BigEndian    => read_to_i8::<T, BigEndian>,
+                    Endianess::LittleEndian => read_to_i8::<T, LittleEndian>,
                 }
-            }),
-            DType::I16 => Box::new(|ref mut reader| -> Result<T, String> {
-                match reader.read_i16::<LittleEndian>() { 
-                    Ok(v) => match T::from_i16(v) {
-                        Some(c) => Ok(c),
-                        None => return Err(format!("Failed to convert value from i16 to T"))
-                    },
-                    Err(e) => return Err(e.description().to_string())
+            },
+            DType::I16 => {
+                match self.endianess {
+                    Endianess::BigEndian    => read_to_i16::<T, BigEndian>,
+                    Endianess::LittleEndian => read_to_i16::<T, LittleEndian>,
                 }
-            }),
-            DType::I32 => Box::new(|ref mut reader| -> Result<T, String> {
-                match reader.read_i32::<LittleEndian>() { 
-                    Ok(v) => match T::from_i32(v) {
-                        Some(c) => Ok(c),
-                        None => return Err(format!("Failed to convert value from i32 to T"))
-                    },
-                    Err(e) => return Err(e.description().to_string())
+            },
+            DType::I32 => {
+                match self.endianess {
+                    Endianess::BigEndian    => read_to_i32::<T, BigEndian>,
+                    Endianess::LittleEndian => read_to_i32::<T, LittleEndian>,
                 }
-            }),
-            DType::I64 => Box::new(|ref mut reader| -> Result<T, String> {
-                match reader.read_i64::<LittleEndian>() { 
-                    Ok(v) => match T::from_i64(v) {
-                        Some(c) => Ok(c),
-                        None => return Err(format!("Failed to convert value from i64 to T"))
-                    },
-                    Err(e) => return Err(e.description().to_string())
+            },
+            DType::I64 => {
+                match self.endianess {
+                    Endianess::BigEndian    => read_to_i64::<T, BigEndian>,
+                    Endianess::LittleEndian => read_to_i64::<T, LittleEndian>,
                 }
-            }),
-            DType::F32 => Box::new(|ref mut reader| -> Result<T, String> {
-                match reader.read_f32::<LittleEndian>() { 
-                    Ok(v) => match T::from_f32(v) {
-                        Some(c) => Ok(c),
-                        None => return Err(format!("Failed to convert value from f32 to T"))
-                    },
-                    Err(e) => return Err(e.description().to_string())
+            },
+            DType::F32 => {
+                match self.endianess {
+                    Endianess::BigEndian    => read_to_f32::<T, BigEndian>,
+                    Endianess::LittleEndian => read_to_f32::<T, LittleEndian>,
                 }
-            }),
-            DType::F64 => Box::new(|ref mut reader| -> Result<T, String> {
-                match reader.read_f64::<LittleEndian>() { 
-                    Ok(v) => match T::from_f64(v) {
-                        Some(c) => Ok(c),
-                        None => return Err(format!("Failed to convert value from f64 to T"))
-                    },
-                    Err(e) => return Err(e.description().to_string())
+            },
+            DType::F64 => {
+                match self.endianess {
+                    Endianess::BigEndian    => read_to_f64::<T, BigEndian>,
+                    Endianess::LittleEndian => read_to_f64::<T, LittleEndian>,
                 }
-            }),
+            },
         };
 
         let mut array = NDArray::<T>::new(&self.shape, T::from_u8(0).unwrap());
@@ -296,7 +533,7 @@ impl NumpyFile {
                 Err(e) => return Err(e)
             };
             match self.order {
-                Order::ColumnMajor => {
+                Order::RowMajor => {
                     let mut i = idx.len();
                     while i > 0 {
                         idx[i-1] += 1;
@@ -312,7 +549,7 @@ impl NumpyFile {
                         break;
                     }
                 },
-                Order::RowMajor => {
+                Order::ColumnMajor => {
                     let mut i = 0;
                     while i < idx.len() {
                         idx[i] += 1;
@@ -332,5 +569,122 @@ impl NumpyFile {
         }
 
         return Ok(array);
+    }
+
+    pub fn write_array<T : Clone + ToPrimitive>(&mut self, array : &NDArray<T>) -> Result<(), String>  {
+        let mut writer = match self.get_writer() {
+            Ok(w) => w,
+            Err(e) => return Err(e)
+        };
+        if let Err(e) = self.write_header(&mut writer) {
+            return Err(e);
+        }
+
+        let writechain = match self.dtype {
+            DType::U8 => {
+                match self.endianess {
+                    Endianess::BigEndian    => write_to_u8::<T, BigEndian>,
+                    Endianess::LittleEndian => write_to_u8::<T, LittleEndian>,
+                }
+            },
+            DType::U16 => {
+                match self.endianess {
+                    Endianess::BigEndian    => write_to_u16::<T, BigEndian>,
+                    Endianess::LittleEndian => write_to_u16::<T, LittleEndian>,
+                }
+            },
+            DType::U32 => {
+                match self.endianess {
+                    Endianess::BigEndian    => write_to_u32::<T, BigEndian>,
+                    Endianess::LittleEndian => write_to_u32::<T, LittleEndian>,
+                }
+            },
+            DType::U64 => {
+                match self.endianess {
+                    Endianess::BigEndian    => write_to_u64::<T, BigEndian>,
+                    Endianess::LittleEndian => write_to_u64::<T, LittleEndian>,
+                }
+            },
+            DType::I8 => {
+                match self.endianess {
+                    Endianess::BigEndian    => write_to_i8::<T, BigEndian>,
+                    Endianess::LittleEndian => write_to_i8::<T, LittleEndian>,
+                }
+            },
+            DType::I16 => {
+                match self.endianess {
+                    Endianess::BigEndian    => write_to_i16::<T, BigEndian>,
+                    Endianess::LittleEndian => write_to_i16::<T, LittleEndian>,
+                }
+            },
+            DType::I32 => {
+                match self.endianess {
+                    Endianess::BigEndian    => write_to_i32::<T, BigEndian>,
+                    Endianess::LittleEndian => write_to_i32::<T, LittleEndian>,
+                }
+            },
+            DType::I64 => {
+                match self.endianess {
+                    Endianess::BigEndian    => write_to_i64::<T, BigEndian>,
+                    Endianess::LittleEndian => write_to_i64::<T, LittleEndian>,
+                }
+            },
+            DType::F32 => {
+                match self.endianess {
+                    Endianess::BigEndian    => write_to_f32::<T, BigEndian>,
+                    Endianess::LittleEndian => write_to_f32::<T, LittleEndian>,
+                }
+            },
+            DType::F64 => {
+                match self.endianess {
+                    Endianess::BigEndian    => write_to_f64::<T, BigEndian>,
+                    Endianess::LittleEndian => write_to_f64::<T, LittleEndian>,
+                }
+            },
+        };
+
+        let mut idx : Vec<usize> = repeat(0usize).take(self.shape.len()).collect();
+
+        loop {
+            if let Err(e) = writechain(&mut writer, array[&idx[..]].clone()) {
+                return Err(e)
+            }
+            match self.order {
+                Order::RowMajor => {
+                    let mut i = idx.len();
+                    while i > 0 {
+                        idx[i-1] += 1;
+                        if idx[i-1] >= self.shape[i-1] {
+                            idx[i-1] = 0;
+                            i -= 1;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                    if i == 0 {
+                        break;
+                    }
+                },
+                Order::ColumnMajor => {
+                    let mut i = 0;
+                    while i < idx.len() {
+                        idx[i] += 1;
+                        if idx[i] >= self.shape[i] {
+                            idx[i] = 0;
+                            i += 1;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                    if i == idx.len() {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return Ok(());
     }
 }

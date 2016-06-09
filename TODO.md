@@ -12,14 +12,16 @@ array
 * Make NDDataMut require NDData
 * Equality operator for NDData
 * Assignation operator for NDDataMut
+* documentation
 
 array::csv
 ==========
 
 * Array iterator for CSV file
 * read_row_iterator and write_row_iterator
+* documentation
 
 array::numpy
 ============
 
-* Reverse format
+* documentation
