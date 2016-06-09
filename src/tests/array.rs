@@ -1,4 +1,4 @@
-use array::{NDArray, NDData, NDSliceable, NDSliceableMut};
+use array::{NDArray, NDData, NDDataMut, NDSliceable, NDSliceableMut};
 
 #[test]
 fn indexing() {
@@ -6,14 +6,14 @@ fn indexing() {
     for i in 0..3 {
         for j in 0..3 {
             for k in 0..3 {
-                array[&[i, j, k][..]] = (i * 3 + j * 5 + k * 7) as f64;
+                array[&[i, j, k]] = (i * 3 + j * 5 + k * 7) as f64;
             }
         }
     }
     for i in 0..3 {
         for j in 0..3 {
             for k in 0..3 {
-                assert!(array[&[i,j,k][..]] == (i * 3 + j * 5 + k * 7) as f64);
+                assert!(array[&[i,j,k]] == (i * 3 + j * 5 + k * 7) as f64);
             }
         }
     }
@@ -23,14 +23,14 @@ fn indexing() {
 #[should_panic]
 fn indexing_wrongdim() {
     let mut array = NDArray::<f64>::new(&[3, 3, 3], 0.0);
-    array[&[1,2][..]] = 1.0;
+    array[&[1,2]] = 1.0;
 }
 
 #[test]
 #[should_panic]
 fn indexing_outofbound() {
     let mut array = NDArray::<f64>::new(&[3, 3, 3], 0.0);
-    array[&[1,4,1][..]] = 1.0;
+    array[&[1,4,1]] = 1.0;
 }
 
 #[test]
@@ -39,7 +39,7 @@ fn slicing() {
     for i in 0..3 {
         for j in 0..3 {
             for k in 0..3 {
-                array[&[i, j, k][..]] = (i * 3 + j * 5 + k * 7) as f64;
+                array[&[i, j, k]] = (i * 3 + j * 5 + k * 7) as f64;
             }
         }
     }
@@ -48,7 +48,7 @@ fn slicing() {
         for j in 0..3 {
             let slice1d = slice2d.slice(&[j]);
             for k in 0..3 {
-                assert!(slice1d[&[k][..]] == (i * 3 + j * 5 + k * 7) as f64);
+                assert!(slice1d[&[k]] == (i * 3 + j * 5 + k * 7) as f64);
             }
         }
     }
@@ -61,14 +61,14 @@ fn slicing_mut() {
         for j in 0..3 {
             let mut slice1d = array.slice_mut(&[i, j]);
             for k in 0..3 {
-                slice1d[&[k][..]] = (i * 3 + j * 5 + k * 7) as f64;
+                slice1d[&[k]] = (i * 3 + j * 5 + k * 7) as f64;
             }
         }
     }
     for i in 0..3 {
         for j in 0..3 {
             for k in 0..3 {
-                assert!(array[&[i,j,k][..]] == (i * 3 + j * 5 + k * 7) as f64);
+                assert!(array[&[i,j,k]] == (i * 3 + j * 5 + k * 7) as f64);
             }
         }
     }
@@ -79,14 +79,14 @@ fn copy() {
     for i in 0..3 {
         for j in 0..3 {
             for k in 0..3 {
-                array[&[i, j, k][..]] = (i * j * k) as f64;
+                array[&[i, j, k]] = (i * j * k) as f64;
             }
         }
     }
     let array2 = NDArray::copy(array.slice(&[2]));
     for i in 0..3 {
         for j in 0..3 {
-            assert!(array2[&[i,j][..]] == (i * j * 2) as f64);
+            assert!(array2[&[i,j]] == (i * j * 2) as f64);
         }
     }
 }
@@ -97,7 +97,7 @@ fn from_slice() {
     for i in 0..3 {
         for j in 0..3 {
             for k in 0..3 {
-                array[&[i, j, k][..]] = (i * j * k) as f64;
+                array[&[i, j, k]] = (i * j * k) as f64;
             }
         }
     }
@@ -105,7 +105,7 @@ fn from_slice() {
     for i in 0..3 {
         for j in 0..3 {
             for k in 0..3 {
-                assert!(array2[&[i,j,k][..]] == (i * j * k) as f64);
+                assert!(array2[&[i,j,k]] == (i * j * k) as f64);
             }
         }
     }
@@ -115,11 +115,11 @@ fn from_slice() {
 fn reshape() {
     let mut array = NDArray::<f64>::new(&[3], 0.0);
     for i in 0..3 {
-        array[&[i][..]] = i as f64;
+        array[&[i]] = i as f64;
     }
     assert!(array.reshape(&[1,3]) == Ok(()));
     for i in 0..3 {
-        assert!(array[&[0,i][..]] == i as f64);
+        assert!(array[&[0,i]] == i as f64);
     }
 }
 
@@ -128,10 +128,47 @@ fn reshape() {
 fn reshape_invalid() {
     let mut array = NDArray::<f64>::new(&[3], 0.0);
     for i in 0..3 {
-        array[&[i][..]] = i as f64;
+        array[&[i]] = i as f64;
     }
     assert!(array.reshape(&[3,3]) == Ok(()));
     for i in 0..3 {
-        assert!(array[&[i,i][..]] == i as f64);
+        assert!(array[&[i,i]] == i as f64);
     }
 }
+
+/*
+#[test]
+fn transpose_2d() {
+    let mut array = NDArray::<f64>::new(&[3, 3], 0.0);
+    for i in 0..3 {
+        for j in 0..3 {
+            array[&[i, j]] = (i * 3 + j * 5) as f64;
+        }
+    }
+    array.transpose();
+    for i in 0..3 {
+        for j in 0..3 {
+            assert!(array[&[j,i]] == (i * 3 + j * 5) as f64);
+        }
+    }
+}
+#[test]
+fn transpose_3d() {
+    let mut array = NDArray::<f64>::new(&[3, 3, 3], 0.0);
+    for i in 0..3 {
+        for j in 0..3 {
+            for k in 0..3 {
+                array[&[i, j, k]] = (i * 3 + j * 5 + k * 7) as f64;
+            }
+        }
+    }
+    array.transpose();
+    for i in 0..3 {
+        for j in 0..3 {
+            for k in 0..3 {
+                assert!(array[&[k,j,i]] == (i * 3 + j * 5 + k * 7) as f64);
+            }
+        }
+    }
+}
+*/

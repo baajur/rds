@@ -3,7 +3,6 @@ array
 
 * Transpose
 * Join, extract, remove, split (extract + remove)
-* Implement index operation for &[usize;1], &[usize;2], &[usize;3] as a temporary fix
 * Make NDSliceableMut require NDSliceable
 * Equality operator for NDData
 * Assignation operator for NDDataMut
