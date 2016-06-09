@@ -88,6 +88,24 @@ impl<T : Clone> NDArray<T> {
             data : data.to_vec().into_boxed_slice(),
         }
     }
+
+    pub fn reshape(&mut self, new_shape : &[usize]) -> Result<(),String> {
+        let size1 = self.shape.iter().fold(1usize, |acc, &x| acc * x);
+        let size2 = new_shape.iter().fold(1usize, |acc, &x| acc * x);
+
+        if size1 != size2 {
+            return Err(format!("New shape has a different size than the previous shape: {} != {}", size1, size2));
+        }
+        self.shape = new_shape.to_vec();
+        self.strides = repeat(0usize).take(self.shape.len()).collect();
+        let mut size = 1usize;
+        for i in 0..self.shape.len() {
+            let revidx = self.shape.len() - i - 1;
+            self.strides[revidx] = size;
+            size *= self.shape[revidx];
+        }
+        return Ok(());
+    }
 }
 
 

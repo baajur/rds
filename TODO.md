@@ -1,7 +1,6 @@
 array
 =====
 
-* Reshape (e.g 1d to 2d column vector or row vector)
 * Transpose
 * Join, extract, remove, split (extract + remove)
 * Add idx function to NDData

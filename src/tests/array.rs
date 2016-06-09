@@ -110,3 +110,28 @@ fn from_slice() {
         }
     }
 }
+
+#[test]
+fn reshape() {
+    let mut array = NDArray::<f64>::new(&[3], 0.0);
+    for i in 0..3 {
+        array[&[i][..]] = i as f64;
+    }
+    assert!(array.reshape(&[1,3]) == Ok(()));
+    for i in 0..3 {
+        assert!(array[&[0,i][..]] == i as f64);
+    }
+}
+
+#[test]
+#[should_panic]
+fn reshape_invalid() {
+    let mut array = NDArray::<f64>::new(&[3], 0.0);
+    for i in 0..3 {
+        array[&[i][..]] = i as f64;
+    }
+    assert!(array.reshape(&[3,3]) == Ok(()));
+    for i in 0..3 {
+        assert!(array[&[i,i][..]] == i as f64);
+    }
+}
