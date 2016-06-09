@@ -13,7 +13,7 @@ fn read() {
         if path_str.ends_with(".npy") {
             print!("Reading {}: ", path_str);
             let mut numpyfile = NumpyFile::new(path_str);
-            let mut array : NDArray<f32> = numpyfile.read_array().unwrap();
+            let array : NDArray<f32> = numpyfile.read_array().unwrap();
             assert!(array.dim() <= 3);
             if array.dim() == 1 {
                 for i in 0..array.shape()[0] {
@@ -49,7 +49,7 @@ fn write() {
         let path_str = path.to_str().unwrap();
         if path_str.ends_with(".npy") {
             let mut numpyfile = NumpyFile::new(path_str);
-            let mut array : NDArray<f32> = numpyfile.read_array().unwrap();
+            let array : NDArray<f32> = numpyfile.read_array().unwrap();
             assert!(array.dim() <= 3);
             if array.dim() == 1 {
                 for i in 0..array.shape()[0] {

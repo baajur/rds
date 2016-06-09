@@ -6,17 +6,52 @@ pub mod numpy;
 
 pub trait NDData<T> {
 
-    fn dim(&self) -> usize;
-
     fn shape(&self) -> &[usize];
 
     fn strides(&self) -> &[usize]; 
 
-    fn size(&self) -> usize;
-
     fn get_data(&self) -> &[T];
 
-    unsafe fn get_data_raw(&self) -> *const T;
+    fn dim(&self) -> usize {
+        self.shape().len()
+    }
+
+    fn size(&self) -> usize {
+        self.shape().iter().fold(1usize, |acc, &x| acc * x)
+    }
+
+    fn idx<'a>(&'a self, idx : &[usize]) -> &'a T {
+        if idx.len() != self.shape().len() {
+            panic!("NDData::idx({:?}): idx is not of the right dimension ({} != {})", idx, idx.len(), self.dim());
+        }
+        let mut pos = 0usize;
+        for i in 0..idx.len() {
+            if idx[i] >= self.shape()[i] {
+                panic!("NDData::idx({:?}): idx is out of bound for dimension {} (shape: {:?}", idx, i, self.shape());
+            }
+            pos += idx[i] * self.strides()[i];
+        }
+        return &self.get_data()[pos];
+    }
+}
+
+pub trait NDDataMut<T> : NDData<T> {
+
+    fn get_data_mut(&mut self) -> &mut [T];
+
+    fn idx_mut<'a>(&'a mut self, idx : &[usize]) -> &'a mut T {
+        if idx.len() != self.shape().len() {
+            panic!("NDDataMut::idx_mut({:?}): idx is not of the right dimension ({} != {})", idx, idx.len(), self.dim());
+        }
+        let mut pos = 0usize;
+        for i in 0..idx.len() {
+            if idx[i] >= self.shape()[i] {
+                panic!("NDDataMut::idx_mut({:?}): idx is out of bound for dimension {} (shape: {:?}", idx, i, self.shape());
+            }
+            pos += idx[i] * self.strides()[i];
+        }
+        return &mut self.get_data_mut()[pos];
+    }
 }
 
 pub trait NDSliceable<'a, T : 'a> {
@@ -111,10 +146,6 @@ impl<T : Clone> NDArray<T> {
 
 impl<T> NDData<T> for NDArray<T> { 
 
-    fn dim(&self) -> usize {
-        self.shape.len()
-    }
-
     fn shape(&self) -> &[usize] {
         &self.shape[..]
     }
@@ -123,16 +154,15 @@ impl<T> NDData<T> for NDArray<T> {
         &self.strides[..]
     }
 
-    fn size(&self) -> usize {
-        self.shape.iter().fold(1usize, |acc, &x| acc * x)
-    }
-
     fn get_data(&self) -> &[T] {
         &self.data[..]
     }
+}
 
-    unsafe fn get_data_raw(&self) -> *const T {
-        self.data.as_ptr()
+impl<T> NDDataMut<T> for NDArray<T> { 
+
+    fn get_data_mut(&mut self) -> &mut [T] {
+        &mut self.data[..]
     }
 }
 
@@ -176,34 +206,18 @@ impl<'b, T> Index<&'b [usize]> for NDArray<T> {
     type Output = T;
 
     fn index<'c>(&'c self, idx : &'b [usize]) -> &'c T {
-        assert!(idx.len() == self.shape.len());
-        let mut pos = 0usize;
-        for i in 0..idx.len() {
-            assert!(idx[i] < self.shape[i]);
-            pos += idx[i] * self.strides[i];
-        }
-        return &self.data[pos];
+        self.idx(idx)
     }
 }
 
 impl<'b, T> IndexMut<&'b [usize]> for NDArray<T> {
 
     fn index_mut<'c>(&'c mut self, idx : &[usize]) -> &'c mut T {
-        assert!(idx.len() == self.shape.len());
-        let mut pos = 0usize;
-        for i in 0..idx.len() {
-            assert!(idx[i] < self.shape[i]);
-            pos += idx[i] * self.strides[i];
-        }
-        return &mut self.data[pos];
+        self.idx_mut(idx)
     }
 }
 
 impl<'a, T> NDData<T> for NDSlice<'a, T> {
-
-    fn dim(&self) -> usize {
-        self.shape.len()
-    }
 
     fn shape(&self) -> &[usize] {
         &self.shape
@@ -213,18 +227,9 @@ impl<'a, T> NDData<T> for NDSlice<'a, T> {
         &self.strides
     }
 
-    fn size(&self) -> usize {
-        self.shape.iter().fold(1usize, |acc, &x| acc * x)
-    }
-
     fn get_data(&self) -> &[T] {
         self.data
     }
-
-    unsafe fn get_data_raw(&self) -> *const T {
-        self.data.as_ptr()
-    }
-
 }
 
 impl<'a, T : 'a> NDSliceable<'a, T> for NDSlice<'a, T> {
@@ -249,21 +254,11 @@ impl<'a, 'b, T> Index<&'b [usize]> for NDSlice<'a, T> {
     type Output = T;
 
     fn index<'c>(&'c self, idx : &'b [usize]) -> &'c T {
-        assert!(idx.len() == self.shape.len());
-        let mut pos = 0usize;
-        for i in 0..idx.len() {
-            assert!(idx[i] < self.shape[i]);
-            pos += idx[i] * self.strides[i];
-        }
-        return &self.data[pos];
+        self.idx(idx)
     }
 }
 
 impl<'a, T> NDData<T> for NDSliceMut<'a, T> {
-
-    fn dim(&self) -> usize {
-        self.shape.len()
-    }
 
     fn shape(&self) -> &[usize] {
         &self.shape
@@ -273,16 +268,15 @@ impl<'a, T> NDData<T> for NDSliceMut<'a, T> {
         &self.strides
     }
 
-    fn size(&self) -> usize {
-        self.shape.iter().fold(1usize, |acc, &x| acc * x)
-    }
-
     fn get_data(&self) -> &[T] {
         self.data
     }
+}
 
-    unsafe fn get_data_raw(&self) -> *const T {
-        self.data.as_ptr()
+impl<'a, T> NDDataMut<T> for NDSliceMut<'a, T> {
+
+    fn get_data_mut(&mut self) -> &mut [T] {
+        self.data
     }
 }
 
@@ -326,25 +320,13 @@ impl<'a, 'b, T> Index<&'b [usize]> for NDSliceMut<'a, T> {
     type Output = T;
 
     fn index<'c>(&'c self, idx : &'b [usize]) -> &'c T {
-        assert!(idx.len() == self.shape.len());
-        let mut pos = 0usize;
-        for i in 0..idx.len() {
-            assert!(idx[i] < self.shape[i]);
-            pos += idx[i] * self.strides[i];
-        }
-        return &self.data[pos];
+        self.idx(idx)
     }
 }
 
 impl<'a, 'b, T> IndexMut<&'b [usize]> for NDSliceMut<'a, T> {
 
     fn index_mut<'c>(&'c mut self, idx : &[usize]) -> &'c mut T {
-        assert!(idx.len() == self.shape.len());
-        let mut pos = 0usize;
-        for i in 0..idx.len() {
-            assert!(idx[i] < self.shape[i]);
-            pos += idx[i] * self.strides[i];
-        }
-        return &mut self.data[pos];
+        self.idx_mut(idx)
     }
 }

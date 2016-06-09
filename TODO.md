@@ -3,12 +3,8 @@ array
 
 * Transpose
 * Join, extract, remove, split (extract + remove)
-* Add idx function to NDData
-* Add NDDataMut trait
-* Add idx_mut function to NDDataMut
 * Implement index operation for &[usize;1], &[usize;2], &[usize;3] as a temporary fix
 * Make NDSliceableMut require NDSliceable
-* Make NDDataMut require NDData
 * Equality operator for NDData
 * Assignation operator for NDDataMut
 * documentation
