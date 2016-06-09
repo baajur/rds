@@ -8,3 +8,6 @@ matrix:
     - rust: nightly
 install:
   - pip install --user numpy
+script:
+  - cargo build --verbose
+  - RUST_BACKTRACE=1 cargo test -j1 -- --no-capture
