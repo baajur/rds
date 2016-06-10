@@ -7,8 +7,9 @@ use array::numpy::NumpyFile;
 
 #[test]
 fn read() {
-    assert!(Command::new("python").arg("test_vector/numpy/generate.py").status().unwrap().success());
-    for file in read_dir("test_vector/numpy/in/").unwrap() {
+    const TMP_DIR : &'static str = "/tmp/rds_numpy_1/";
+    assert!(Command::new("python").arg("test_vector/numpy/generate.py").arg(TMP_DIR).status().unwrap().success());
+    for file in read_dir(TMP_DIR).unwrap() {
         let path = file.unwrap().path();
         let path_str = path.to_str().unwrap();
         if path_str.ends_with(".npy") {
@@ -44,8 +45,9 @@ fn read() {
 
 #[test]
 fn write() {
-    assert!(Command::new("python").arg("test_vector/numpy/generate.py").status().unwrap().success());
-    for file in read_dir("test_vector/numpy/in/").unwrap() {
+    const TMP_DIR : &'static str = "/tmp/rds_numpy_2/";
+    assert!(Command::new("python").arg("test_vector/numpy/generate.py").arg(TMP_DIR).status().unwrap().success());
+    for file in read_dir(TMP_DIR).unwrap() {
         let path = file.unwrap().path();
         let path_str = path.to_str().unwrap();
         if path_str.ends_with(".npy") {
@@ -73,8 +75,8 @@ fn write() {
                     }
                 }
             }
-            NumpyFile::new(&path_str.replace("/in/", "/out/")[..]).write_array(&array).unwrap();
+            numpyfile.write_array(&array).unwrap();
         }
     }
-    assert!(Command::new("python").arg("test_vector/numpy/verify.py").status().unwrap().success());
+    assert!(Command::new("python").arg("test_vector/numpy/verify.py").arg(TMP_DIR).status().unwrap().success());
 }

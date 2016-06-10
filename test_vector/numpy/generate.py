@@ -1,10 +1,10 @@
-import numpy as np
+import sys
 import os
+import numpy as np
 
-if os.path.isdir('test_vector/numpy/in') == False:
-    os.mkdir('test_vector/numpy/in')
-if os.path.isdir('test_vector/numpy/out') == False:
-    os.mkdir('test_vector/numpy/out')
+directory = sys.argv[1]
+if os.path.isdir(directory) == False:
+    os.mkdir(directory)
 
 array1d = [3*i for i in range(0,3)]
 array2d = [[3*i + 5*j for j in range(0,3)] for i in range(0,3)]
@@ -16,9 +16,9 @@ for t in types:
     dt = np.dtype(t)
     for bo in ['<', '>']:
         dt = np.dtype(bo + dt.str[1:])
-        np.save('test_vector/numpy/in/1d_' + bo + t, np.array(array1d, dtype=dt, order='C'))
-        np.save('test_vector/numpy/in/2d_' + bo + t, np.array(array2d, dtype=dt, order='C'))
-        np.save('test_vector/numpy/in/3d_' + bo + t, np.array(array3d, dtype=dt, order='C'))
-        np.save('test_vector/numpy/in/fortran_1d_' + bo + t, np.array(array1d, dtype=dt, order='F'))
-        np.save('test_vector/numpy/in/fortran_2d_' + bo + t, np.array(array2d, dtype=t, order='F'))
-        np.save('test_vector/numpy/in/fortran_3d_' + bo + t, np.array(array3d, dtype=t, order='F'))
+        np.save(directory + '/1d_' + bo + t, np.array(array1d, dtype=dt, order='C'))
+        np.save(directory + '/2d_' + bo + t, np.array(array2d, dtype=dt, order='C'))
+        np.save(directory + '/3d_' + bo + t, np.array(array3d, dtype=dt, order='C'))
+        np.save(directory + '/fortran_1d_' + bo + t, np.array(array1d, dtype=dt, order='F'))
+        np.save(directory + '/fortran_2d_' + bo + t, np.array(array2d, dtype=t, order='F'))
+        np.save(directory + '/fortran_3d_' + bo + t, np.array(array3d, dtype=t, order='F'))
