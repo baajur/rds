@@ -1,4 +1,10 @@
 import numpy as np
+import os
+
+if os.path.isdir('test_vector/numpy/in') == False:
+    os.mkdir('test_vector/numpy/in')
+if os.path.isdir('test_vector/numpy/out') == False:
+    os.mkdir('test_vector/numpy/out')
 
 array1d = [3*i for i in range(0,3)]
 array2d = [[3*i + 5*j for j in range(0,3)] for i in range(0,3)]
