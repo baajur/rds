@@ -576,6 +576,7 @@ impl NumpyFile {
             Ok(w) => w,
             Err(e) => return Err(e)
         };
+        self.shape = array.shape.clone();
         if let Err(e) = self.write_header(&mut writer) {
             return Err(e);
         }
@@ -643,7 +644,7 @@ impl NumpyFile {
             },
         };
 
-        let mut idx : Vec<usize> = repeat(0usize).take(self.shape.len()).collect();
+        let mut idx : Vec<usize> = repeat(0usize).take(array.dim()).collect();
 
         loop {
             if let Err(e) = writechain(&mut writer, array[&idx[..]].clone()) {

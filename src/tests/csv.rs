@@ -4,7 +4,7 @@ use array::csv::CSVFile;
 #[test]
 fn array() {
     let mut array = NDArray::<f64>::new(&[10, 5], 0.0);
-    let mut csvfile = CSVFile::new("/tmp/test.csv");
+    let mut csvfile = CSVFile::new("/tmp/test1.csv");
     for i in 0..array.shape()[0] {
         for j in 0..array.shape()[1] {
             array[&[i, j]] = (i * 2 + j * 5) as f64;
@@ -24,7 +24,7 @@ fn array() {
 #[test]
 fn rows() {
     let mut array = NDArray::<f64>::new(&[10, 5], 0.0);
-    let mut csvfile = CSVFile::new("/tmp/test.csv");
+    let mut csvfile = CSVFile::new("/tmp/test2.csv");
     for i in 0..array.shape()[0] {
         for j in 0..array.shape()[1] {
             array[&[i, j]] = (i * 2 + j * 5) as f64;
@@ -42,7 +42,7 @@ fn rows() {
 #[test]
 fn columns() {
     let mut array = NDArray::<f64>::new(&[10, 5], 0.0);
-    let mut csvfile = CSVFile::new("/tmp/test.csv");
+    let mut csvfile = CSVFile::new("/tmp/test3.csv");
     for i in 0..array.shape()[0] {
         for j in 0..array.shape()[1] {
             array[&[i, j]] = (i * 2 + j * 5) as f64;

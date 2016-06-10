@@ -1,4 +1,5 @@
 use std::fs::read_dir;
+use std::path::PathBuf;
 use std::process::Command;
 
 use array::{NDData, NDArray};
@@ -7,7 +8,7 @@ use array::numpy::NumpyFile;
 #[test]
 fn read() {
     assert!(Command::new("python").arg("test_vector/numpy/generate.py").status().unwrap().success());
-    for file in read_dir("test_vector/numpy/").unwrap() {
+    for file in read_dir("test_vector/numpy/in/").unwrap() {
         let path = file.unwrap().path();
         let path_str = path.to_str().unwrap();
         if path_str.ends_with(".npy") {
@@ -44,7 +45,7 @@ fn read() {
 #[test]
 fn write() {
     assert!(Command::new("python").arg("test_vector/numpy/generate.py").status().unwrap().success());
-    for file in read_dir("test_vector/numpy/").unwrap() {
+    for file in read_dir("test_vector/numpy/in/").unwrap() {
         let path = file.unwrap().path();
         let path_str = path.to_str().unwrap();
         if path_str.ends_with(".npy") {
@@ -72,7 +73,8 @@ fn write() {
                     }
                 }
             }
-            numpyfile.write_array(&array).unwrap();
+            NumpyFile::new(&path_str.replace("/in/", "/out/")[..]).write_array(&array).unwrap();
         }
     }
+    assert!(Command::new("python").arg("test_vector/numpy/verify.py").status().unwrap().success());
 }
