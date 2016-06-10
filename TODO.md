@@ -3,7 +3,6 @@ array
 
 * Make generic transpose in place
 * Join, extract, remove, split (extract + remove)
-* Equality operator for NDData
 * Assignation operator for NDDataMut
 * documentation
 

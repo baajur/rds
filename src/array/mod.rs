@@ -1,3 +1,4 @@
+use std::cmp::{PartialEq, Eq};
 use std::iter::repeat;
 use std::fmt::Display;
 use std::ops::{Index, IndexMut};
@@ -28,7 +29,7 @@ pub trait NDData<T> {
         let mut pos = 0usize;
         for i in 0..idx.len() {
             if idx[i] >= self.shape()[i] {
-                panic!("NDData::idx({:?}): idx is out of bound for dimension {} (shape: {:?}", idx, i, self.shape());
+                panic!("NDData::idx({:?}): idx is out of bound for dimension {} (shape: {:?})", idx, i, self.shape());
             }
             pos += idx[i] * self.strides()[i];
         }
@@ -47,7 +48,7 @@ pub trait NDDataMut<T : Clone + Display> : NDData<T> {
         let mut pos = 0usize;
         for i in 0..idx.len() {
             if idx[i] >= self.shape()[i] {
-                panic!("NDDataMut::idx_mut({:?}): idx is out of bound for dimension {} (shape: {:?}", 
+                panic!("NDDataMut::idx_mut({:?}): idx is out of bound for dimension {} (shape: {:?})", 
                         idx, i, self.shape());
             }
             pos += idx[i] * self.strides()[i];
@@ -149,7 +150,10 @@ impl<T : Clone> NDArray<T> {
     }
 
     pub fn from_slice(shape : &[usize], data : &[T]) -> NDArray<T> {
-        assert!(shape.iter().fold(1usize, |acc, &x| acc * x) == data.len());
+        let shape_size = shape.iter().fold(1usize, |acc, &x| acc * x);
+        if shape_size != data.len() {
+            panic!(format!("NDArray::from_slice({:?}, data) : The size of the shape ({}) and the data ({}) doesn't match", shape, shape_size, data.len()));
+        }
         NDArray {
             shape : shape.to_vec(),
             strides : NDArray::<T>::compute_strides(&shape),
@@ -222,10 +226,15 @@ impl<T : Clone + Display> NDDataMut<T> for NDArray<T> {
 impl<'a, T : 'a> NDSliceable<'a, T> for NDArray<T> {
 
     fn slice(&'a self, idx : &[usize]) -> NDSlice<'a, T> {
-        assert!(idx.len() <= self.shape.len());
+        if idx.len() >= self.shape().len() {
+            panic!("NDArray::slice({:?}): idx is not of the right dimension ({} >= {})", idx, idx.len(), self.dim());
+        }
         let mut start = 0usize;
         for i in 0..idx.len() {
-            assert!(idx[i] < self.shape[i]);
+            if idx[i] >= self.shape()[i] {
+                panic!("NDArray::slice({:?}): idx is out of bound for dimension {} (shape: {:?})", 
+                        idx, i, self.shape());
+            }
             start += idx[i] * self.strides[i];
         }
         let end = start + self.strides[idx.len()-1];
@@ -240,10 +249,15 @@ impl<'a, T : 'a> NDSliceable<'a, T> for NDArray<T> {
 impl<'a, T : 'a> NDSliceableMut<'a, T> for NDArray<T> {
 
     fn slice_mut(&'a mut self, idx : &[usize]) -> NDSliceMut<'a, T> {
-        assert!(idx.len() <= self.shape.len());
+        if idx.len() >= self.shape().len() {
+            panic!("NDArray::slice_mut({:?}): idx is not of the right dimension ({} >= {})", idx, idx.len(), self.dim());
+        }
         let mut start = 0usize;
         for i in 0..idx.len() {
-            assert!(idx[i] < self.shape[i]);
+            if idx[i] >= self.shape()[i] {
+                panic!("NDArray::slice_mut({:?}): idx is out of bound for dimension {} (shape: {:?})", 
+                        idx, i, self.shape());
+            }
             start += idx[i] * self.strides[i];
         }
         let end = start + self.strides[idx.len()-1];
@@ -333,10 +347,15 @@ impl<'a, T> NDData<T> for NDSlice<'a, T> {
 impl<'a, T : 'a> NDSliceable<'a, T> for NDSlice<'a, T> {
 
     fn slice(&'a self, idx : &[usize]) -> NDSlice<'a, T> {
-        assert!(idx.len() <= self.shape.len());
+        if idx.len() >= self.shape().len() {
+            panic!("NDSlice::slice({:?}): idx is not of the right dimension ({} >= {})", idx, idx.len(), self.dim());
+        }
         let mut start = 0usize;
         for i in 0..idx.len() {
-            assert!(idx[i] < self.shape[i]);
+            if idx[i] >= self.shape()[i] {
+                panic!("NDSlice::slice({:?}): idx is out of bound for dimension {} (shape: {:?})", 
+                        idx, i, self.shape());
+            }
             start += idx[i] * self.strides[i];
         }
         let end = start + self.strides[idx.len()-1];
@@ -405,10 +424,15 @@ impl<'a, T : Clone + Display> NDDataMut<T> for NDSliceMut<'a, T> {
 impl<'a, T : 'a> NDSliceable<'a, T> for NDSliceMut<'a, T> {
 
     fn slice(&'a self, idx : &[usize]) -> NDSlice<'a, T> {
-        assert!(idx.len() <= self.shape.len());
+        if idx.len() >= self.shape().len() {
+            panic!("NDSliceMut::slice({:?}): idx is not of the right dimension ({} >= {})", idx, idx.len(), self.dim());
+        }
         let mut start = 0usize;
         for i in 0..idx.len() {
-            assert!(idx[i] < self.shape[i]);
+            if idx[i] >= self.shape()[i] {
+                panic!("NDSliceMut::slice({:?}): idx is out of bound for dimension {} (shape: {:?})", 
+                        idx, i, self.shape());
+            }
             start += idx[i] * self.strides[i];
         }
         let end = start + self.strides[idx.len()-1];
@@ -423,10 +447,15 @@ impl<'a, T : 'a> NDSliceable<'a, T> for NDSliceMut<'a, T> {
 impl<'a, T : 'a> NDSliceableMut<'a, T> for NDSliceMut<'a, T> {
 
     fn slice_mut(&'a mut self, idx : &[usize]) -> NDSliceMut<'a, T> {
-        assert!(idx.len() <= self.shape.len());
+        if idx.len() >= self.shape().len() {
+            panic!("NDSliceMut::slice_mut({:?}): idx is not of the right dimension ({} >= {})", idx, idx.len(), self.dim());
+        }
         let mut start = 0usize;
         for i in 0..idx.len() {
-            assert!(idx[i] < self.shape[i]);
+            if idx[i] >= self.shape()[i] {
+                panic!("NDSliceMut::slice_mut({:?}): idx is out of bound for dimension {} (shape: {:?})", 
+                        idx, i, self.shape());
+            }
             start += idx[i] * self.strides[i];
         }
         let end = start + self.strides[idx.len()-1];
@@ -496,4 +525,127 @@ impl<'a, 'b, T : Clone + Display> IndexMut<&'b [usize;3]> for NDSliceMut<'a, T> 
     fn index_mut<'c>(&'c mut self, idx : &'b [usize;3]) -> &'c mut T {
         self.idx_mut(idx)
     }
+}
+
+impl<T : PartialEq> PartialEq for NDArray<T> {
+
+    fn eq(&self, other: &NDArray<T>) -> bool {
+        if self.dim() != other.dim() {
+            return false;
+        }
+
+        for i in 0..self.dim() {
+            if self.shape()[i] != other.shape()[i] {
+                return false;
+            }
+        }
+
+        let mut idx : Vec<usize>= repeat(0usize).take(self.dim()).collect();
+        loop {
+            if *self.idx(&idx[..]) != *other.idx(&idx[..]) {
+                return false;
+            }
+            // Update idx
+            let mut i = 0;
+            while i < idx.len() {
+                idx[i] += 1;
+                if idx[i] >= self.shape()[i] {
+                        idx[i] = 0;
+                    i += 1;
+                }
+                else {
+                    break;
+                }
+            }
+            if i == idx.len() {
+                break;
+            }
+        }
+        return true;
+    }
+}
+
+impl<T : Eq> Eq for NDArray<T> {
+}
+
+impl<'a, T : PartialEq> PartialEq for NDSlice<'a, T> {
+
+    fn eq(&self, other: &NDSlice<'a, T>) -> bool {
+        if self.dim() != other.dim() {
+            return false;
+        }
+
+        for i in 0..self.dim() {
+            if self.shape()[i] != other.shape()[i] {
+                return false;
+            }
+        }
+
+        let mut idx : Vec<usize>= repeat(0usize).take(self.dim()).collect();
+        loop {
+            if *self.idx(&idx[..]) != *other.idx(&idx[..]) {
+                return false;
+            }
+            // Update idx
+            let mut i = 0;
+            while i < idx.len() {
+                idx[i] += 1;
+                if idx[i] >= self.shape()[i] {
+                        idx[i] = 0;
+                    i += 1;
+                }
+                else {
+                    break;
+                }
+            }
+            if i == idx.len() {
+                break;
+            }
+        }
+        return true;
+    }
+}
+
+impl<'a, T : Eq> Eq for NDSlice<'a, T> {
+}
+
+impl<'a, T : PartialEq> PartialEq for NDSliceMut<'a, T> {
+
+    fn eq(&self, other: &NDSliceMut<'a, T>) -> bool {
+        if self.dim() != other.dim() {
+            return false;
+        }
+
+        for i in 0..self.dim() {
+            if self.shape()[i] != other.shape()[i] {
+                return false;
+            }
+        }
+
+        let mut idx : Vec<usize>= repeat(0usize).take(self.dim()).collect();
+        loop {
+            if *self.idx(&idx[..]) != *other.idx(&idx[..]) {
+                return false;
+            }
+            // Update idx
+            let mut i = 0;
+            while i < idx.len() {
+                idx[i] += 1;
+                if idx[i] >= self.shape()[i] {
+                        idx[i] = 0;
+                    i += 1;
+                }
+                else {
+                    break;
+                }
+            }
+            if i == idx.len() {
+                break;
+            }
+        }
+        return true;
+    }
+}
+
+impl<'a, T : Eq> Eq for NDSliceMut<'a, T> {
 }

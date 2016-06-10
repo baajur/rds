@@ -216,3 +216,12 @@ fn transpose_3d() {
         }
     }
 }
+
+#[test]
+fn equality() {
+    assert!(NDArray::<u8>::new(&[3, 3, 3], 0) == NDArray::<u8>::new(&[3, 3, 3], 0));
+    assert!(NDArray::<u8>::new(&[3, 3, 3], 0) != NDArray::<u8>::new(&[3, 3], 0));
+    assert!(NDArray::<u8>::new(&[3, 4], 0) != NDArray::<u8>::new(&[3, 3], 0));
+    assert!(NDArray::<u8>::new(&[3], 0) != NDArray::<u8>::new(&[3], 1));
+    assert!(NDArray::<u8>::new(&[4, 3], 0).slice(&[1]) == NDArray::<u8>::new(&[2, 3], 0).slice(&[1]));
+}
