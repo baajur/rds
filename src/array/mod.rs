@@ -117,7 +117,8 @@ pub struct NDArray<T> {
 }
 
 impl<T : Clone> NDArray<T> {
-    pub fn new(shape : &[usize], v : T) -> NDArray<T> {
+
+    fn compute_strides(shape : &[usize]) -> Vec<usize> {
         let mut strides : Vec<usize> = repeat(0usize).take(shape.len()).collect();
         let mut size = 1usize;
         for i in 0..shape.len() {
@@ -125,11 +126,16 @@ impl<T : Clone> NDArray<T> {
             strides[revidx] = size;
             size *= shape[revidx];
         }
+        return strides;
+    }
+
+    pub fn new(shape : &[usize], v : T) -> NDArray<T> {
+        let size = shape.iter().fold(1usize, |acc, &x| acc * x);
         let alloc : Vec<T> = repeat(v).take(size).collect();
 
         return NDArray {
             shape : shape.to_vec(),
-            strides : strides,
+            strides : NDArray::<T>::compute_strides(&shape),
             data : alloc.into_boxed_slice(),
         }
     }
@@ -143,17 +149,10 @@ impl<T : Clone> NDArray<T> {
     }
 
     pub fn from_slice(shape : &[usize], data : &[T]) -> NDArray<T> {
-        let mut strides : Vec<usize> = repeat(0usize).take(shape.len()).collect();
-        let mut size = 1usize;
-        for i in 0..shape.len() {
-            let revidx = shape.len() - i - 1;
-            strides[revidx] = size;
-            size *= shape[revidx];
-        }
-        assert!(size == data.len());
+        assert!(shape.iter().fold(1usize, |acc, &x| acc * x) == data.len());
         NDArray {
             shape : shape.to_vec(),
-            strides : strides,
+            strides : NDArray::<T>::compute_strides(&shape),
             data : data.to_vec().into_boxed_slice(),
         }
     }
@@ -166,13 +165,7 @@ impl<T : Clone> NDArray<T> {
             return Err(format!("New shape has a different size than the previous shape: {} != {}", size1, size2));
         }
         self.shape = new_shape.to_vec();
-        self.strides = repeat(0usize).take(self.shape.len()).collect();
-        let mut size = 1usize;
-        for i in 0..self.shape.len() {
-            let revidx = self.shape.len() - i - 1;
-            self.strides[revidx] = size;
-            size *= self.shape[revidx];
-        }
+        self.strides = NDArray::<T>::compute_strides(&new_shape);
         return Ok(());
     }
 }
@@ -197,6 +190,32 @@ impl<T : Clone + Display> NDDataMut<T> for NDArray<T> {
 
     fn get_data_mut(&mut self) -> &mut [T] {
         &mut self.data[..]
+    }
+
+    fn transpose(&mut self) {
+        let copy = NDArray::<T>::copy(self);
+        let mut idx : Vec<usize>= repeat(0usize).take(self.dim()).collect();
+        self.shape.reverse();
+        self.strides = NDArray::<T>::compute_strides(&self.shape[..]);
+        loop {
+            let revidx : Vec<usize> = idx.iter().rev().cloned().collect();
+            *self.idx_mut(&idx[..]) = copy.idx(&revidx[..]).clone();
+            // Update idx
+            let mut i = 0;
+            while i < idx.len() {
+                idx[i] += 1;
+                if idx[i] >= self.shape()[i] {
+                        idx[i] = 0;
+                    i += 1;
+                }
+                else {
+                    break;
+                }
+            }
+            if i == idx.len() {
+                break;
+            }
+        }
     }
 }
 

@@ -174,10 +174,45 @@ fn generic_transpose_3d() {
     }
 }
 
-
 #[test]
 #[should_panic]
 fn generic_transpose_wrong_shape() {
     let mut array = NDArray::<f64>::new(&[3, 3, 4], 0.0);
+    array.slice_mut(&[]).transpose();
+}
+
+#[test]
+fn transpose_2d() {
+    let mut array = NDArray::<f64>::new(&[3, 4], 0.0);
+    for i in 0..3 {
+        for j in 0..4 {
+            array[&[i, j]] = (i * 3 + j * 5) as f64;
+        }
+    }
     array.transpose();
+    for i in 0..3 {
+        for j in 0..4 {
+            assert!(array[&[j,i]] == (i * 3 + j * 5) as f64);
+        }
+    }
+}
+
+#[test]
+fn transpose_3d() {
+    let mut array = NDArray::<f64>::new(&[3, 4, 5], 0.0);
+    for i in 0..3 {
+        for j in 0..4 {
+            for k in 0..5 {
+                array[&[i, j, k]] = (i * 3 + j * 5 + k * 7) as f64;
+            }
+        }
+    }
+    array.transpose();
+    for i in 0..3 {
+        for j in 0..4 {
+            for k in 0..5 {
+                assert!(array[&[k,j,i]] == (i * 3 + j * 5 + k * 7) as f64);
+            }
+        }
+    }
 }
