@@ -1,5 +1,4 @@
 use std::fs::read_dir;
-use std::path::PathBuf;
 use std::process::Command;
 
 use array::{NDData, NDArray};

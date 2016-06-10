@@ -87,7 +87,7 @@ pub trait NDSliceable<'a, T : 'a> {
     fn slice(&'a self, idx : &[usize]) -> NDSlice<'a, T>;
 }
 
-pub trait NDSliceableMut<'a, T : 'a> {
+pub trait NDSliceableMut<'a, T : 'a> : NDSliceable<'a, T> {
 
     fn slice_mut(&'a mut self, idx : &[usize]) -> NDSliceMut<'a, T>;
 }
