@@ -2,6 +2,7 @@ extern crate num;
 extern crate byteorder;
 
 use std::error::Error;
+use std::fmt::Display;
 use std::fs::File;
 use std::io::{Read,Write};
 use std::iter::repeat;
@@ -452,7 +453,7 @@ impl NumpyFile {
         return Ok(());
     }
 
-    pub fn read_array<T : Clone + FromPrimitive>(&mut self) -> Result<NDArray<T>, String>  {
+    pub fn read_array<T : Clone + FromPrimitive + Display>(&mut self) -> Result<NDArray<T>, String>  {
         let mut reader = match self.get_reader() {
             Ok(r) => r,
             Err(e) => return Err(e)
@@ -571,7 +572,7 @@ impl NumpyFile {
         return Ok(array);
     }
 
-    pub fn write_array<T : Clone + ToPrimitive>(&mut self, array : &NDArray<T>) -> Result<(), String>  {
+    pub fn write_array<T : Clone + ToPrimitive + Display>(&mut self, array : &NDArray<T>) -> Result<(), String>  {
         let mut writer = match self.get_writer() {
             Ok(w) => w,
             Err(e) => return Err(e)

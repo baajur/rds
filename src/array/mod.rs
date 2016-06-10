@@ -1,4 +1,5 @@
 use std::iter::repeat;
+use std::fmt::Display;
 use std::ops::{Index, IndexMut};
 
 pub mod csv;
@@ -35,7 +36,7 @@ pub trait NDData<T> {
     }
 }
 
-pub trait NDDataMut<T : Clone> : NDData<T> {
+pub trait NDDataMut<T : Clone + Display> : NDData<T> {
 
     fn get_data_mut(&mut self) -> &mut [T];
 
@@ -46,29 +47,34 @@ pub trait NDDataMut<T : Clone> : NDData<T> {
         let mut pos = 0usize;
         for i in 0..idx.len() {
             if idx[i] >= self.shape()[i] {
-                panic!("NDDataMut::idx_mut({:?}): idx is out of bound for dimension {} (shape: {:?}", idx, i, self.shape());
+                panic!("NDDataMut::idx_mut({:?}): idx is out of bound for dimension {} (shape: {:?}", 
+                        idx, i, self.shape());
             }
             pos += idx[i] * self.strides()[i];
         }
         return &mut self.get_data_mut()[pos];
     }
 
-    /*fn transpose(&mut self) {
+    fn transpose(&mut self) {
+        // Check shape
+        for i in 0..self.dim() {
+            if self.shape()[0] != self.shape()[i] {
+                panic!(format!("NDDataMut::transpose(): generic transpose only apply to data where all the dimensions length are the same, shape[0] != shape[{}] ({} != {})",
+                                i, self.shape()[0], self.shape()[i]));
+            }
+        }
+
         let mut idx : Vec<usize>= repeat(0usize).take(self.dim()).collect();
+        let copy = NDArray::<T>::from_slice(&self.shape()[..], self.get_data());
         loop {
-            // Swap
-            let v1 = self.idx(&idx[..]).clone();
-            idx.reverse();
-            let v2 = self.idx(&idx[..]).clone();
-            *self.idx_mut(&idx[..]) = v1;
-            idx.reverse();
-            *self.idx_mut(&idx[..]) = v2;
+            let revidx : Vec<usize> = idx.iter().rev().cloned().collect();
+            *self.idx_mut(&idx[..]) = copy.idx(&revidx[..]).clone();
             // Update idx
             let mut i = 0;
             while i < idx.len() {
                 idx[i] += 1;
                 if idx[i] >= self.shape()[i] {
-                    idx[i] = 0;
+                        idx[i] = 0;
                     i += 1;
                 }
                 else {
@@ -79,7 +85,7 @@ pub trait NDDataMut<T : Clone> : NDData<T> {
                 break;
             }
         }
-    }*/
+    }
 }
 
 pub trait NDSliceable<'a, T : 'a> {
@@ -128,7 +134,7 @@ impl<T : Clone> NDArray<T> {
         }
     }
 
-    pub fn copy<R : NDData<T>>(data : R) -> NDArray<T> {
+    pub fn copy<R : NDData<T>>(data : &R) -> NDArray<T> {
         NDArray {
             shape : data.shape().to_vec(),
             strides : data.strides().to_vec(),
@@ -187,7 +193,7 @@ impl<T> NDData<T> for NDArray<T> {
     }
 }
 
-impl<T : Clone> NDDataMut<T> for NDArray<T> { 
+impl<T : Clone + Display> NDDataMut<T> for NDArray<T> { 
 
     fn get_data_mut(&mut self) -> &mut [T] {
         &mut self.data[..]
@@ -262,28 +268,28 @@ impl<'b, T> Index<&'b [usize;3]> for NDArray<T> {
     }
 }
 
-impl<'b, T : Clone> IndexMut<&'b [usize]> for NDArray<T> {
+impl<'b, T : Clone + Display> IndexMut<&'b [usize]> for NDArray<T> {
 
     fn index_mut<'c>(&'c mut self, idx : &[usize]) -> &'c mut T {
         self.idx_mut(idx)
     }
 }
 
-impl<'b, T : Clone> IndexMut<&'b [usize;1]> for NDArray<T> {
+impl<'b, T : Clone + Display> IndexMut<&'b [usize;1]> for NDArray<T> {
 
     fn index_mut<'c>(&'c mut self, idx : &[usize;1]) -> &'c mut T {
         self.idx_mut(idx)
     }
 }
 
-impl<'b, T : Clone> IndexMut<&'b [usize;2]> for NDArray<T> {
+impl<'b, T : Clone + Display> IndexMut<&'b [usize;2]> for NDArray<T> {
 
     fn index_mut<'c>(&'c mut self, idx : &[usize;2]) -> &'c mut T {
         self.idx_mut(idx)
     }
 }
 
-impl<'b, T : Clone> IndexMut<&'b [usize;3]> for NDArray<T> {
+impl<'b, T : Clone + Display> IndexMut<&'b [usize;3]> for NDArray<T> {
 
     fn index_mut<'c>(&'c mut self, idx : &[usize;3]) -> &'c mut T {
         self.idx_mut(idx)
@@ -370,7 +376,7 @@ impl<'a, T> NDData<T> for NDSliceMut<'a, T> {
     }
 }
 
-impl<'a, T : Clone> NDDataMut<T> for NDSliceMut<'a, T> {
+impl<'a, T : Clone + Display> NDDataMut<T> for NDSliceMut<'a, T> {
 
     fn get_data_mut(&mut self) -> &mut [T] {
         self.data
@@ -445,28 +451,28 @@ impl<'a, 'b, T> Index<&'b [usize;3]> for NDSliceMut<'a, T> {
     }
 }
 
-impl<'a, 'b, T : Clone> IndexMut<&'b [usize]> for NDSliceMut<'a, T> {
+impl<'a, 'b, T : Clone + Display> IndexMut<&'b [usize]> for NDSliceMut<'a, T> {
 
     fn index_mut<'c>(&'c mut self, idx : &[usize]) -> &'c mut T {
         self.idx_mut(idx)
     }
 }
 
-impl<'a, 'b, T : Clone> IndexMut<&'b [usize;1]> for NDSliceMut<'a, T> {
+impl<'a, 'b, T : Clone + Display> IndexMut<&'b [usize;1]> for NDSliceMut<'a, T> {
 
     fn index_mut<'c>(&'c mut self, idx : &'b [usize;1]) -> &'c mut T {
         self.idx_mut(idx)
     }
 }
 
-impl<'a, 'b, T : Clone> IndexMut<&'b [usize;2]> for NDSliceMut<'a, T> {
+impl<'a, 'b, T : Clone + Display> IndexMut<&'b [usize;2]> for NDSliceMut<'a, T> {
 
     fn index_mut<'c>(&'c mut self, idx : &'b [usize;2]) -> &'c mut T {
         self.idx_mut(idx)
     }
 }
 
-impl<'a, 'b, T : Clone> IndexMut<&'b [usize;3]> for NDSliceMut<'a, T> {
+impl<'a, 'b, T : Clone + Display> IndexMut<&'b [usize;3]> for NDSliceMut<'a, T> {
 
     fn index_mut<'c>(&'c mut self, idx : &'b [usize;3]) -> &'c mut T {
         self.idx_mut(idx)

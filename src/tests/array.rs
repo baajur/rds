@@ -83,7 +83,7 @@ fn copy() {
             }
         }
     }
-    let array2 = NDArray::copy(array.slice(&[2]));
+    let array2 = NDArray::copy(&array.slice(&[2]));
     for i in 0..3 {
         for j in 0..3 {
             assert!(array2[&[i,j]] == (i * j * 2) as f64);
@@ -136,24 +136,26 @@ fn reshape_invalid() {
     }
 }
 
-/*
 #[test]
-fn transpose_2d() {
-    let mut array = NDArray::<f64>::new(&[3, 3], 0.0);
+fn generic_transpose_2d() {
+    let mut array = NDArray::<f64>::new(&[3, 3, 3], 0.0);
     for i in 0..3 {
         for j in 0..3 {
-            array[&[i, j]] = (i * 3 + j * 5) as f64;
+            for k in 0..3 {
+                array[&[i, j, k]] = (i * 3 + j * 5 + k * 7) as f64;
+            }
         }
     }
-    array.transpose();
+    array.slice_mut(&[1]).transpose();
     for i in 0..3 {
         for j in 0..3 {
-            assert!(array[&[j,i]] == (i * 3 + j * 5) as f64);
+            assert!(array[&[1,j,i]] == (3 + i * 5 + j * 7) as f64);
         }
     }
 }
+
 #[test]
-fn transpose_3d() {
+fn generic_transpose_3d() {
     let mut array = NDArray::<f64>::new(&[3, 3, 3], 0.0);
     for i in 0..3 {
         for j in 0..3 {
@@ -171,4 +173,11 @@ fn transpose_3d() {
         }
     }
 }
-*/
+
+
+#[test]
+#[should_panic]
+fn generic_transpose_wrong_shape() {
+    let mut array = NDArray::<f64>::new(&[3, 3, 4], 0.0);
+    array.transpose();
+}
