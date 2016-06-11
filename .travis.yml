@@ -6,6 +6,11 @@ rust:
 matrix:
   allow_failures:
     - rust: nightly
+addons:
+  apt:
+    packages:
+      - gfortran
+      - libblas-dev
 install:
   - pip install --user numpy
 script:

@@ -35,7 +35,6 @@ pub trait NDData<T> {
         }
         return &self.get_data()[pos];
     }
-
 }
 
 pub trait NDDataMut<T : Clone + Display> : NDData<T> {
@@ -94,10 +93,8 @@ pub trait NDDataMut<T : Clone + Display> : NDData<T> {
             panic!("NDDataMut::assign(): other is not of the same dimension ({} != {})",  other.dim(), self.dim());
         }
 
-        for i in 0..self.dim() {
-            if self.shape()[i] != other.shape()[i] {
-                panic!("NDDataMut::assign(): other is not of the same shape ({:?} != {:?})",  other.shape(), self.shape());
-            }
+        if self.shape() != other.shape() {
+            panic!("NDDataMut::assign(): other is not of the same shape ({:?} != {:?})",  other.shape(), self.shape());
         }
 
         let mut idx : Vec<usize>= repeat(0usize).take(self.dim()).collect();

@@ -1,9 +1,10 @@
 array
 =====
 
-* Make generic transpose in place
+* Index trait 
 * Join, extract, remove, split (extract + remove)
 * documentation
+* Make generic transpose in place
 
 array::csv
 ==========
@@ -16,3 +17,11 @@ array::numpy
 ============
 
 * documentation
+
+blas
+====
+
+* blas dot product
+* blas cross product
+* overload ops
+* design a backend (OpenCL, Cuda) abstraction
