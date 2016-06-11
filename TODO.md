@@ -3,7 +3,6 @@ array
 
 * Make generic transpose in place
 * Join, extract, remove, split (extract + remove)
-* Assignation operator for NDDataMut
 * documentation
 
 array::csv

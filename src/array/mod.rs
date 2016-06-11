@@ -35,6 +35,7 @@ pub trait NDData<T> {
         }
         return &self.get_data()[pos];
     }
+
 }
 
 pub trait NDDataMut<T : Clone + Display> : NDData<T> {
@@ -70,6 +71,38 @@ pub trait NDDataMut<T : Clone + Display> : NDData<T> {
         loop {
             let revidx : Vec<usize> = idx.iter().rev().cloned().collect();
             *self.idx_mut(&idx[..]) = copy.idx(&revidx[..]).clone();
+            // Update idx
+            let mut i = 0;
+            while i < idx.len() {
+                idx[i] += 1;
+                if idx[i] >= self.shape()[i] {
+                        idx[i] = 0;
+                    i += 1;
+                }
+                else {
+                    break;
+                }
+            }
+            if i == idx.len() {
+                break;
+            }
+        }
+    }
+
+    fn assign(&mut self, other : &NDData<T>) {
+        if self.dim() != self.dim() {
+            panic!("NDDataMut::assign(): other is not of the same dimension ({} != {})",  other.dim(), self.dim());
+        }
+
+        for i in 0..self.dim() {
+            if self.shape()[i] != other.shape()[i] {
+                panic!("NDDataMut::assign(): other is not of the same shape ({:?} != {:?})",  other.shape(), self.shape());
+            }
+        }
+
+        let mut idx : Vec<usize>= repeat(0usize).take(self.dim()).collect();
+        loop {
+            *self.idx_mut(&idx[..]) = other.idx(&idx[..]).clone();
             // Update idx
             let mut i = 0;
             while i < idx.len() {

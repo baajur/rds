@@ -225,3 +225,24 @@ fn equality() {
     assert!(NDArray::<u8>::new(&[3], 0) != NDArray::<u8>::new(&[3], 1));
     assert!(NDArray::<u8>::new(&[4, 3], 0).slice(&[1]) == NDArray::<u8>::new(&[2, 3], 0).slice(&[1]));
 }
+
+#[test]
+fn assignement() {
+    let mut array3d = NDArray::<f64>::new(&[3, 3, 3], 0.0);
+    let mut array2d = NDArray::<f64>::new(&[3, 3], 0.0);
+    for i in 0..3 {
+        for j in 0..3 {
+            array2d[&[i, j]] = (i * 3 + j * 5) as f64;
+        }
+    }
+    for i in 0..3 {
+        array3d.slice_mut(&[i]).assign(&array2d);
+    }
+    for i in 0..3 {
+        for j in 0..3 {
+            for k in 0..3 {
+                assert!(array3d[&[i,j,k]] == (j * 3 + k * 5) as f64);
+            }
+        }
+    }
+}
