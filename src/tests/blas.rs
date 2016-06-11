@@ -125,3 +125,25 @@ fn axpy_shouldpanic() {
     let array2 = NDArray::<f32>::new(&[5, 4], 0.0);
     array1.axpy(2.0, &array2);
 }
+
+#[test]
+fn dot_f32() {
+    let mut array1 = NDArray::<f32>::new(&[3], 0.0);
+    let mut array2 = NDArray::<f32>::new(&[3], 0.0);
+    for i in 0..3 {
+        array1[&[i]] = (i * 3) as f32;
+        array2[&[i]] = (i * 5) as f32;
+    }
+    assert!(array1.dot(&array2) == 15.0 + 60.0) ;
+}
+
+#[test]
+fn dot_f64() {
+    let mut array1 = NDArray::<f64>::new(&[3], 0.0);
+    let mut array2 = NDArray::<f64>::new(&[3], 0.0);
+    for i in 0..3 {
+        array1[&[i]] = (i * 3) as f64;
+        array2[&[i]] = (i * 5) as f64;
+    }
+    assert!(array1.dot(&array2) == 15.0 + 60.0) ;
+}

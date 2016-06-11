@@ -24,7 +24,6 @@ array::numpy
 blas
 ====
 
-* blas dot product
 * blas cross product
 * overload ops
 * design a backend (OpenCL, Cuda) abstraction
