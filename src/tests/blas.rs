@@ -147,3 +147,29 @@ fn dot_f64() {
     }
     assert!(array1.dot(&array2) == 15.0 + 60.0) ;
 }
+
+#[test]
+#[should_panic]
+fn dot_shouldpanic() {
+    let array1 = NDArray::<f32>::new(&[5, 5], 0.0);
+    let array2 = NDArray::<f32>::new(&[5, 4], 0.0);
+    let _ = array1.dot(&array2);
+}
+
+#[test]
+fn ops_overloading() {
+    let mut array1 = NDArray::<f64>::new(&[5], 0.0);
+    let mut array2 = NDArray::<f64>::new(&[5], 0.0);
+    let mut array3 = NDArray::<f64>::new(&[5], 0.0);
+    for i in 0..5 {
+        array1[&[i]] = (i * 2) as f64;
+        array2[&[i]] = (i * 3) as f64;
+        array3[&[i]] = (i * 5) as f64;
+    }
+    array1 += array3;
+    array1 *= 2.0;
+    array1 -= array2;
+    for i in 0..5 {
+        assert!(array1[&[i]] == (i *  11) as f64);
+    }
+}
