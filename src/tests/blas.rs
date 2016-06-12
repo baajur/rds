@@ -199,10 +199,8 @@ fn ops_overloading() {
     let matrix = NDArray::<f64>::from_slice(&[3,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0]);
     array1 += array3;
     assert!(array1 == NDArray::<f64>::from_slice(&[3], &[7.0, 14.0, 21.0]));
-    array1 *= 2.0;
-    assert!(array1 == NDArray::<f64>::from_slice(&[3], &[14.0, 28.0, 42.0]));
     array1 -= array2;
-    assert!(array1 == NDArray::<f64>::from_slice(&[3], &[11.0, 22.0, 33.0]));
+    assert!(array1 == NDArray::<f64>::from_slice(&[3], &[4.0, 8.0, 12.0]));
     array1 *= matrix;
-    assert!(array1 == NDArray::<f64>::from_slice(&[3], &[33.0, 55.0, 44.0]));
+    assert!(array1 == NDArray::<f64>::from_slice(&[3], &[12.0, 20.0, 16.0]));
 }

@@ -557,9 +557,9 @@ impl<'a, 'b, T : Clone + Display> IndexMut<&'b [usize;3]> for NDSliceMut<'a, T> 
     }
 }
 
-impl<T : PartialEq> PartialEq for NDArray<T> {
+impl<T : PartialEq, O : NDData<T> + Sized> PartialEq<O> for NDArray<T> {
 
-    fn eq(&self, other: &NDArray<T>) -> bool {
+    fn eq(&self, other: &O) -> bool {
         if self.dim() != other.dim() {
             return false;
         }
@@ -598,9 +598,9 @@ impl<T : PartialEq> PartialEq for NDArray<T> {
 impl<T : Eq> Eq for NDArray<T> {
 }
 
-impl<'a, T : PartialEq> PartialEq for NDSlice<'a, T> {
+impl<'a, T : PartialEq, O : NDData<T> + Sized> PartialEq<O> for NDSlice<'a, T> {
 
-    fn eq(&self, other: &NDSlice<'a, T>) -> bool {
+    fn eq(&self, other: &O) -> bool {
         if self.dim() != other.dim() {
             return false;
         }
@@ -639,9 +639,9 @@ impl<'a, T : PartialEq> PartialEq for NDSlice<'a, T> {
 impl<'a, T : Eq> Eq for NDSlice<'a, T> {
 }
 
-impl<'a, T : PartialEq> PartialEq for NDSliceMut<'a, T> {
+impl<'a, T : PartialEq, O : NDData<T> + Sized> PartialEq<O> for NDSliceMut<'a, T> {
 
-    fn eq(&self, other: &NDSliceMut<'a, T>) -> bool {
+    fn eq(&self, other: &O) -> bool {
         if self.dim() != other.dim() {
             return false;
         }

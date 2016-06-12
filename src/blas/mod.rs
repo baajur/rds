@@ -4,7 +4,7 @@ extern crate libc;
 use std::fmt::Display;
 use std::ops::{AddAssign, SubAssign, MulAssign};
 
-use array::{NDData, NDDataMut, NDArray, NDSlice, NDSliceMut};
+use array::{NDData, NDDataMut, NDArray, NDSliceMut};
 
 const CBLAS_ROW_MAJOR : libc::c_int = 101;
 #[allow(dead_code)]
@@ -174,50 +174,18 @@ impl<R> Blas<f64> for R where R : NDDataMut<f64> {
 ==================== AddAssign ====================
 */
 
-impl<T : Clone + Display + From<f32>> AddAssign<NDArray<T>> for NDArray<T> where NDArray<T> : Blas<T> {
+impl<T : Clone + Display + From<f32>, R : NDData<T> + Sized> AddAssign<R> for NDArray<T> where NDArray<T> : Blas<T> {
 
     #[inline(always)]
-    fn add_assign(&mut self, rhs: NDArray<T>) {
+    fn add_assign(&mut self, rhs: R) {
         self.axpy(T::from(1.0f32), &rhs);
     }
 }
 
-impl<'a, T : Clone + Display + From<f32>> AddAssign<NDSlice<'a, T>> for NDArray<T> where NDArray<T> : Blas<T> {
+impl<'b, T : Clone + Display + From<f32>, R : NDData<T> + Sized> AddAssign<R> for NDSliceMut<'b, T> where NDSliceMut<'b, T> : Blas<T> {
 
     #[inline(always)]
-    fn add_assign(&mut self, rhs: NDSlice<'a, T>) {
-        self.axpy(T::from(1.0f32), &rhs);
-    }
-}
-
-impl<'a, T : Clone + Display + From<f32>> AddAssign<NDSliceMut<'a, T>> for NDArray<T> where NDArray<T> : Blas<T> {
-
-    #[inline(always)]
-    fn add_assign(&mut self, rhs: NDSliceMut<'a, T>) {
-        self.axpy(T::from(1.0f32), &rhs);
-    }
-}
-
-impl<'b, T : Clone + Display + From<f32>> AddAssign<NDArray<T>> for NDSliceMut<'b, T> where NDSliceMut<'b, T> : Blas<T> {
-
-    #[inline(always)]
-    fn add_assign(&mut self, rhs: NDArray<T>) {
-        self.axpy(T::from(1.0f32), &rhs);
-    }
-}
-
-impl<'a, T : Clone + Display + From<f32>> AddAssign<NDSlice<'a, T>> for NDSliceMut<'a, T> where NDSliceMut<'a, T> : Blas<T> {
-
-    #[inline(always)]
-    fn add_assign(&mut self, rhs: NDSlice<'a, T>) {
-        self.axpy(T::from(1.0f32), &rhs);
-    }
-}
-
-impl<'a, T : Clone + Display + From<f32>> AddAssign<NDSliceMut<'a, T>> for NDSliceMut<'a, T> where NDSliceMut<'a, T> : Blas<T> {
-
-    #[inline(always)]
-    fn add_assign(&mut self, rhs: NDSliceMut<'a, T>) {
+    fn add_assign(&mut self, rhs: R) {
         self.axpy(T::from(1.0f32), &rhs);
     }
 }
@@ -226,50 +194,18 @@ impl<'a, T : Clone + Display + From<f32>> AddAssign<NDSliceMut<'a, T>> for NDSli
 ==================== SubAssign ====================
 */
 
-impl<T : Clone + Display + From<f32>> SubAssign<NDArray<T>> for NDArray<T> where NDArray<T> : Blas<T> {
+impl<T : Clone + Display + From<f32>, R : NDData<T> + Sized> SubAssign<R> for NDArray<T> where NDArray<T> : Blas<T> {
 
     #[inline(always)]
-    fn sub_assign(&mut self, rhs: NDArray<T>) {
+    fn sub_assign(&mut self, rhs: R) {
         self.axpy(T::from(-1.0f32), &rhs);
     }
 }
 
-impl<'a, T : Clone + Display + From<f32>> SubAssign<NDSlice<'a, T>> for NDArray<T> where NDArray<T> : Blas<T> {
+impl<'b, T : Clone + Display + From<f32>, R : NDData<T> + Sized> SubAssign<R> for NDSliceMut<'b, T> where NDSliceMut<'b, T> : Blas<T> {
 
     #[inline(always)]
-    fn sub_assign(&mut self, rhs: NDSlice<'a, T>) {
-        self.axpy(T::from(-1.0f32), &rhs);
-    }
-}
-
-impl<'a, T : Clone + Display + From<f32>> SubAssign<NDSliceMut<'a, T>> for NDArray<T> where NDArray<T> : Blas<T> {
-
-    #[inline(always)]
-    fn sub_assign(&mut self, rhs: NDSliceMut<'a, T>) {
-        self.axpy(T::from(-1.0f32), &rhs);
-    }
-}
-
-impl<'b, T : Clone + Display + From<f32>> SubAssign<NDArray<T>> for NDSliceMut<'b, T> where NDSliceMut<'b, T> : Blas<T> {
-
-    #[inline(always)]
-    fn sub_assign(&mut self, rhs: NDArray<T>) {
-        self.axpy(T::from(-1.0f32), &rhs);
-    }
-}
-
-impl<'a, T : Clone + Display + From<f32>> SubAssign<NDSlice<'a, T>> for NDSliceMut<'a, T> where NDSliceMut<'a, T> : Blas<T> {
-
-    #[inline(always)]
-    fn sub_assign(&mut self, rhs: NDSlice<'a, T>) {
-        self.axpy(T::from(-1.0f32), &rhs);
-    }
-}
-
-impl<'a, T : Clone + Display + From<f32>> SubAssign<NDSliceMut<'a, T>> for NDSliceMut<'a, T> where NDSliceMut<'a, T> : Blas<T> {
-
-    #[inline(always)]
-    fn sub_assign(&mut self, rhs: NDSliceMut<'a, T>) {
+    fn sub_assign(&mut self, rhs: R) {
         self.axpy(T::from(-1.0f32), &rhs);
     }
 }
@@ -278,28 +214,10 @@ impl<'a, T : Clone + Display + From<f32>> SubAssign<NDSliceMut<'a, T>> for NDSli
 ==================== MulAssign ====================
 */
 
-//------------------ Scalar --------------------
-
-impl<T : Clone + Display> MulAssign<T> for NDArray<T> where NDArray<T> : Blas<T> {
-
-    fn mul_assign(&mut self, rhs: T) {
-        self.scal(rhs);
-    }
-}
-
-impl<'a, T : Clone + Display> MulAssign<T> for NDSliceMut<'a, T> where NDSliceMut<'a, T> : Blas<T> {
-
-    fn mul_assign(&mut self, rhs: T) {
-        self.scal(rhs);
-    }
-}
-
-//------------------ ND --------------------
-
-impl<T : Clone + Display + From<f32>> MulAssign<NDArray<T>> for NDArray<T> where NDArray<T> : Blas<T> + NDData<T>{
+impl<T : Clone + Display + From<f32>, I : NDData<T> + Sized> MulAssign<I> for NDArray<T> where NDArray<T> : Blas<T> + NDData<T> {
 
     #[inline(always)]
-    fn mul_assign(&mut self, rhs: NDArray<T>) {
+    fn mul_assign(&mut self, rhs: I) {
         if self.dim() == 1 && rhs.dim() == 2 {
             let x = NDArray::<T>::copy(self);
             self.gemv(T::from(1.0), &rhs, &x, T::from(0.0));
@@ -310,10 +228,10 @@ impl<T : Clone + Display + From<f32>> MulAssign<NDArray<T>> for NDArray<T> where
     }
 }
 
-impl<'a, T : Clone + Display + From<f32>> MulAssign<NDSlice<'a, T>> for NDArray<T> where NDArray<T> : Blas<T> + NDData<T>{
+impl<'a, T : Clone + Display + From<f32>, I : NDData<T> + Sized> MulAssign<I> for NDSliceMut<'a, T> where NDSliceMut<'a, T> : Blas<T> + NDData<T> {
 
     #[inline(always)]
-    fn mul_assign(&mut self, rhs: NDSlice<'a, T>) {
+    fn mul_assign(&mut self, rhs: I) {
         if self.dim() == 1 && rhs.dim() == 2 {
             let x = NDArray::<T>::copy(self);
             self.gemv(T::from(1.0), &rhs, &x, T::from(0.0));
