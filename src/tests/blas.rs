@@ -1,7 +1,7 @@
 use std::f32;
 use std::f64;
 
-use array::NDArray;
+use array::{NDDataMut, NDArray};
 use blas::Blas;
 
 #[test]
@@ -157,19 +157,52 @@ fn dot_shouldpanic() {
 }
 
 #[test]
+fn gemv_f32() {
+    let vector1 = NDArray::<f32>::from_slice(&[3], &[1.0, 2.0, 3.0]);
+    let mut vector2 = NDArray::<f32>::from_slice(&[4], &[1.5, 2.5, 3.5, 4.5]);
+    let mut matrix = NDArray::<f32>::from_slice(&[4,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0]);
+    vector2.gemv(1.0, &matrix, &vector1, 2.0);
+    assert!(vector2 == NDArray::<f32>::from_slice(&[4], &[6.0, 10.0, 11.0, 15.0]));
+    // Auto transpose
+    matrix.transpose();
+    vector2.gemv(1.0, &matrix, &vector1, 2.0);
+    assert!(vector2 == NDArray::<f32>::from_slice(&[4], &[15.0, 25.0, 26.0, 36.0]));
+}
+
+#[test]
+fn gemv_f64() {
+    let vector1 = NDArray::<f64>::from_slice(&[3], &[1.0, 2.0, 3.0]);
+    let mut vector2 = NDArray::<f64>::from_slice(&[4], &[1.5, 2.5, 3.5, 4.5]);
+    let mut matrix = NDArray::<f64>::from_slice(&[4,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0]);
+    vector2.gemv(1.0, &matrix, &vector1, 2.0);
+    assert!(vector2 == NDArray::<f64>::from_slice(&[4], &[6.0, 10.0, 11.0, 15.0]));
+    // Auto transpose
+    matrix.transpose();
+    vector2.gemv(1.0, &matrix, &vector1, 2.0);
+    assert!(vector2 == NDArray::<f64>::from_slice(&[4], &[15.0, 25.0, 26.0, 36.0]));
+}
+
+#[test]
+#[should_panic]
+fn gemv_shouldpanic() {
+    let vector1 = NDArray::<f64>::new(&[3], 0.0);
+    let mut vector2 = NDArray::<f64>::new(&[4], 0.0);
+    let matrix = NDArray::<f64>::new(&[3,3], 0.0);
+    vector2.gemv(1.0, &matrix, &vector1, 2.0);
+}
+
+#[test]
 fn ops_overloading() {
-    let mut array1 = NDArray::<f64>::new(&[5], 0.0);
-    let mut array2 = NDArray::<f64>::new(&[5], 0.0);
-    let mut array3 = NDArray::<f64>::new(&[5], 0.0);
-    for i in 0..5 {
-        array1[&[i]] = (i * 2) as f64;
-        array2[&[i]] = (i * 3) as f64;
-        array3[&[i]] = (i * 5) as f64;
-    }
+    let mut array1 = NDArray::<f64>::from_slice(&[3], &[2.0, 4.0, 6.0]);
+    let array2 = NDArray::<f64>::from_slice(&[3], &[3.0, 6.0, 9.0]);
+    let array3 = NDArray::<f64>::from_slice(&[3], &[5.0, 10.0, 15.0]);
+    let matrix = NDArray::<f64>::from_slice(&[3,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0]);
     array1 += array3;
+    assert!(array1 == NDArray::<f64>::from_slice(&[3], &[7.0, 14.0, 21.0]));
     array1 *= 2.0;
+    assert!(array1 == NDArray::<f64>::from_slice(&[3], &[14.0, 28.0, 42.0]));
     array1 -= array2;
-    for i in 0..5 {
-        assert!(array1[&[i]] == (i *  11) as f64);
-    }
+    assert!(array1 == NDArray::<f64>::from_slice(&[3], &[11.0, 22.0, 33.0]));
+    array1 *= matrix;
+    assert!(array1 == NDArray::<f64>::from_slice(&[3], &[33.0, 55.0, 44.0]));
 }

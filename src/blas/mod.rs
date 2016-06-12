@@ -6,6 +6,13 @@ use std::ops::{AddAssign, SubAssign, MulAssign};
 
 use array::{NDData, NDDataMut, NDArray, NDSlice, NDSliceMut};
 
+const CBLAS_ROW_MAJOR : libc::c_int = 101;
+#[allow(dead_code)]
+const CBLAS_COL_MAJOR : libc::c_int = 102;
+const CBLAS_NO_TRANS : libc::c_int = 111;
+#[allow(dead_code)]
+const CBLAS_TRANS : libc::c_int = 112;
+
 #[link(name = "blas")]
 extern {
     fn cblas_sasum (n : isize, x : *const libc::c_float, incx : isize) -> libc::c_float;
@@ -18,6 +25,8 @@ extern {
     fn cblas_daxpy (n : isize, a : libc::c_double, x : *const libc::c_double, incx : isize, y : *mut libc::c_double, incy : isize) -> libc::c_void;
     fn cblas_sdot (n : isize, x : *const libc::c_float, incx : isize, y : *const libc::c_float, incy : isize) -> libc::c_float;
     fn cblas_ddot (n : isize, x : *const libc::c_double, incx : isize, y : *const libc::c_double, incy : isize) -> libc::c_double;
+    fn cblas_sgemv (layout : libc::c_int, trans : libc::c_int, m : isize, n : isize, alpha : libc::c_float, a : *const libc::c_float, lda : isize, x : *const libc::c_float, incx : isize, beta :libc::c_float, y : *mut libc::c_float, incy : isize) -> libc::c_void;
+    fn cblas_dgemv (layout : libc::c_int, trans : libc::c_int, m : isize, n : isize, alpha : libc::c_double, a : *const libc::c_double, lda : isize, x : *const libc::c_double, incx : isize, beta :libc::c_double, y : *mut libc::c_double, incy : isize) -> libc::c_void;
 }
 
 pub trait Blas<T : Clone + Display> : NDDataMut<T> {
@@ -31,6 +40,8 @@ pub trait Blas<T : Clone + Display> : NDDataMut<T> {
     fn axpy(&mut self, a : T, x : &NDData<T>);
 
     fn dot(&self, x : &NDData<T>) -> T;
+
+    fn gemv(&mut self, alpha : T, a : &NDData<T>, x : &NDData<T>, beta : T);
 }
 
 impl<R> Blas<f32> for R where R : NDDataMut<f32> {
@@ -75,6 +86,25 @@ impl<R> Blas<f32> for R where R : NDDataMut<f32> {
             cblas_sdot(self.size() as isize, x.get_data().as_ptr(), 1, self.get_data().as_ptr(), 1) as f32
         }
     }
+
+    fn gemv(&mut self, alpha : f32, a : &NDData<f32>, x : &NDData<f32>, beta : f32) {
+        if self.dim() != 1 || a.dim() != 2 {
+            panic!("Blas::gemv(): self is not in 1 dimension or a is not in 2 dimension({} != 1 || {} != 2)", self.dim(), a.dim());
+        }
+        if a.shape()[0] == self.shape()[0] && a.shape()[1] == x.shape()[0] {
+            unsafe {
+                cblas_sgemv(CBLAS_ROW_MAJOR, CBLAS_NO_TRANS, a.shape()[0] as isize, a.shape()[1] as isize, alpha, a.get_data().as_ptr(), a.strides()[0] as isize, x.get_data().as_ptr(), 1, beta, self.get_data_mut().as_mut_ptr(), 1);
+            }
+        }
+        else if  a.shape()[0] == x.shape()[0] && a.shape()[1] == self.shape()[0] {
+            unsafe {
+                cblas_sgemv(CBLAS_ROW_MAJOR, CBLAS_TRANS, a.shape()[0] as isize, a.shape()[1] as isize, alpha, a.get_data().as_ptr(), a.strides()[0] as isize, x.get_data().as_ptr(), 1, beta, self.get_data_mut().as_mut_ptr(), 1);
+            }
+        }
+        else {
+            panic!("Blas::gemv(): a dimensions ({:?} do not match y ({:?}) and x ({:?})", a.shape(), self.shape(), x.shape());
+        }
+    }
 }
 
 impl<R> Blas<f64> for R where R : NDDataMut<f64> {
@@ -117,6 +147,25 @@ impl<R> Blas<f64> for R where R : NDDataMut<f64> {
         }
         unsafe {
             cblas_ddot(self.size() as isize, x.get_data().as_ptr(), 1, self.get_data().as_ptr(), 1) as f64
+        }
+    }
+
+    fn gemv(&mut self, alpha : f64, a : &NDData<f64>, x : &NDData<f64>, beta : f64) {
+        if self.dim() != 1 || a.dim() != 2 {
+            panic!("Blas::gemv(): self is not in 1 dimension or a is not in 2 dimension({} != 1 || {} != 2)", self.dim(), x.dim());
+        }
+        if a.shape()[0] == self.shape()[0] && a.shape()[1] == x.shape()[0] {
+            unsafe {
+                cblas_dgemv(CBLAS_ROW_MAJOR, CBLAS_NO_TRANS, a.shape()[0] as isize, a.shape()[1] as isize, alpha, a.get_data().as_ptr(), a.strides()[0] as isize, x.get_data().as_ptr(), 1, beta, self.get_data_mut().as_mut_ptr(), 1);
+            }
+        }
+        else if  a.shape()[0] == x.shape()[0] && a.shape()[1] == self.shape()[0] {
+            unsafe {
+                cblas_dgemv(CBLAS_ROW_MAJOR, CBLAS_TRANS, a.shape()[0] as isize, a.shape()[1] as isize, alpha, a.get_data().as_ptr(), a.strides()[0] as isize, x.get_data().as_ptr(), 1, beta, self.get_data_mut().as_mut_ptr(), 1);
+            }
+        }
+        else {
+            panic!("Blas::gemv(): a dimensions ({:?} do not match y ({:?}) and x ({:?})", a.shape(), self.shape(), x.shape());
         }
     }
 }
@@ -229,6 +278,8 @@ impl<'a, T : Clone + Display + From<f32>> SubAssign<NDSliceMut<'a, T>> for NDSli
 ==================== MulAssign ====================
 */
 
+//------------------ Scalar --------------------
+
 impl<T : Clone + Display> MulAssign<T> for NDArray<T> where NDArray<T> : Blas<T> {
 
     fn mul_assign(&mut self, rhs: T) {
@@ -240,5 +291,35 @@ impl<'a, T : Clone + Display> MulAssign<T> for NDSliceMut<'a, T> where NDSliceMu
 
     fn mul_assign(&mut self, rhs: T) {
         self.scal(rhs);
+    }
+}
+
+//------------------ ND --------------------
+
+impl<T : Clone + Display + From<f32>> MulAssign<NDArray<T>> for NDArray<T> where NDArray<T> : Blas<T> + NDData<T>{
+
+    #[inline(always)]
+    fn mul_assign(&mut self, rhs: NDArray<T>) {
+        if self.dim() == 1 && rhs.dim() == 2 {
+            let x = NDArray::<T>::copy(self);
+            self.gemv(T::from(1.0), &rhs, &x, T::from(0.0));
+        }
+        else {
+            panic!("MulAssign could not find a blas operation between NDData of dimension {} and {}", self.dim(), rhs.dim());
+        }
+    }
+}
+
+impl<'a, T : Clone + Display + From<f32>> MulAssign<NDSlice<'a, T>> for NDArray<T> where NDArray<T> : Blas<T> + NDData<T>{
+
+    #[inline(always)]
+    fn mul_assign(&mut self, rhs: NDSlice<'a, T>) {
+        if self.dim() == 1 && rhs.dim() == 2 {
+            let x = NDArray::<T>::copy(self);
+            self.gemv(T::from(1.0), &rhs, &x, T::from(0.0));
+        }
+        else {
+            panic!("MulAssign could not find a blas operation between NDData of dimension {} and {}", self.dim(), rhs.dim());
+        }
     }
 }
