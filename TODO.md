@@ -24,6 +24,5 @@ array::numpy
 blas
 ====
 
-* blas gemm
 * overload ops
 * design a backend (OpenCL, Cuda) abstraction

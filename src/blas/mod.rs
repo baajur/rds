@@ -27,6 +27,8 @@ extern {
     fn cblas_ddot (n : isize, x : *const libc::c_double, incx : isize, y : *const libc::c_double, incy : isize) -> libc::c_double;
     fn cblas_sgemv (layout : libc::c_int, trans : libc::c_int, m : isize, n : isize, alpha : libc::c_float, a : *const libc::c_float, lda : isize, x : *const libc::c_float, incx : isize, beta :libc::c_float, y : *mut libc::c_float, incy : isize) -> libc::c_void;
     fn cblas_dgemv (layout : libc::c_int, trans : libc::c_int, m : isize, n : isize, alpha : libc::c_double, a : *const libc::c_double, lda : isize, x : *const libc::c_double, incx : isize, beta :libc::c_double, y : *mut libc::c_double, incy : isize) -> libc::c_void;
+    fn cblas_sgemm (layout : libc::c_int, transa : libc::c_int, transb : libc::c_int, m : isize, n : isize, k : isize, alpha : libc::c_float, a : *const libc::c_float, lda : isize, b : *const libc::c_float, ldb : isize, beta : libc::c_float, c : *mut libc::c_float, ldc : isize) -> libc::c_void;
+    fn cblas_dgemm (layout : libc::c_int, transa : libc::c_int, transb : libc::c_int, m : isize, n : isize, k : isize, alpha : libc::c_double, a : *const libc::c_double, lda : isize, b : *const libc::c_double, ldb : isize, beta : libc::c_double, c : *mut libc::c_double, ldc : isize) -> libc::c_void;
 }
 
 pub trait Blas<T : Clone + Display> : NDDataMut<T> {
@@ -42,6 +44,8 @@ pub trait Blas<T : Clone + Display> : NDDataMut<T> {
     fn dot(&self, x : &NDData<T>) -> T;
 
     fn gemv(&mut self, alpha : T, a : &NDData<T>, x : &NDData<T>, beta : T);
+
+    fn gemm(&mut self, alpha : T, a : &NDData<T>, b : &NDData<T>, beta : T);
 }
 
 impl<R> Blas<f32> for R where R : NDDataMut<f32> {
@@ -87,22 +91,62 @@ impl<R> Blas<f32> for R where R : NDDataMut<f32> {
         }
     }
 
+    #[allow(unused_assignments)]
     fn gemv(&mut self, alpha : f32, a : &NDData<f32>, x : &NDData<f32>, beta : f32) {
         if self.dim() != 1 || a.dim() != 2 {
             panic!("Blas::gemv(): self is not in 1 dimension or a is not in 2 dimension({} != 1 || {} != 2)", self.dim(), a.dim());
         }
+
+        let mut trans = 0;
         if a.shape()[0] == self.shape()[0] && a.shape()[1] == x.shape()[0] {
-            unsafe {
-                cblas_sgemv(CBLAS_ROW_MAJOR, CBLAS_NO_TRANS, a.shape()[0] as isize, a.shape()[1] as isize, alpha, a.get_data().as_ptr(), a.strides()[0] as isize, x.get_data().as_ptr(), 1, beta, self.get_data_mut().as_mut_ptr(), 1);
-            }
+            trans = CBLAS_NO_TRANS
         }
         else if  a.shape()[0] == x.shape()[0] && a.shape()[1] == self.shape()[0] {
-            unsafe {
-                cblas_sgemv(CBLAS_ROW_MAJOR, CBLAS_TRANS, a.shape()[0] as isize, a.shape()[1] as isize, alpha, a.get_data().as_ptr(), a.strides()[0] as isize, x.get_data().as_ptr(), 1, beta, self.get_data_mut().as_mut_ptr(), 1);
-            }
+            trans = CBLAS_TRANS
         }
         else {
             panic!("Blas::gemv(): a dimensions ({:?} do not match y ({:?}) and x ({:?})", a.shape(), self.shape(), x.shape());
+        }
+
+        unsafe {
+            cblas_sgemv(CBLAS_ROW_MAJOR, trans, a.shape()[0] as isize, a.shape()[1] as isize, alpha, a.get_data().as_ptr(), a.strides()[0] as isize, x.get_data().as_ptr(), 1, beta, self.get_data_mut().as_mut_ptr(), 1);
+        }
+    }
+
+    #[allow(unused_assignments)]
+    fn gemm(&mut self, alpha : f32, a : &NDData<f32>, b : &NDData<f32>, beta : f32) {
+        if self.dim() != 2 || a.dim() != 2 || b.dim() != 2 {
+            panic!("Blas::gemm(): a, b or c is not in 2 dimension({} != 2 || {} != 2 || {} != 2)", a.dim(), b.dim(), self.dim());
+        }
+
+        let mut transa = 0;
+        let mut transb = 0;
+        let mut k = 0;
+        if self.shape()[0] == a.shape()[0] && self.shape()[1] == b.shape()[1] && a.shape()[1] == b.shape()[0] {
+            transa = CBLAS_NO_TRANS;
+            transb = CBLAS_NO_TRANS;
+            k = a.shape()[1];
+        }
+        else if self.shape()[0] == a.shape()[1] && self.shape()[1] == b.shape()[1] && a.shape()[0] == b.shape()[0] {
+            transa = CBLAS_TRANS;
+            transb = CBLAS_NO_TRANS;
+            k = a.shape()[0];
+        }
+        else if self.shape()[0] == a.shape()[0] && self.shape()[1] == b.shape()[0] && a.shape()[1] == b.shape()[1] {
+            transa = CBLAS_NO_TRANS;
+            transb = CBLAS_TRANS;
+            k = a.shape()[1];
+        }
+        else if self.shape()[0] == a.shape()[1] && self.shape()[1] == b.shape()[0] && a.shape()[0] == b.shape()[1] {
+            transa = CBLAS_TRANS;
+            transb = CBLAS_TRANS;
+            k = a.shape()[0];
+        }
+        else {
+            panic!("Blas::gemm(): a dimensions ({:?} do not match b ({:?}) and c ({:?})", a.shape(), b.shape(), self.shape());
+        }
+        unsafe {
+            cblas_sgemm(CBLAS_ROW_MAJOR, transa, transb, self.shape()[0] as isize, self.shape()[1] as isize, k as isize, alpha, a.get_data().as_ptr(), a.strides()[0] as isize, b.get_data().as_ptr(), b.strides()[0] as isize, beta, self.get_data_mut().as_mut_ptr(), self.strides()[0] as isize);
         }
     }
 }
@@ -150,22 +194,61 @@ impl<R> Blas<f64> for R where R : NDDataMut<f64> {
         }
     }
 
+    #[allow(unused_assignments)]
     fn gemv(&mut self, alpha : f64, a : &NDData<f64>, x : &NDData<f64>, beta : f64) {
         if self.dim() != 1 || a.dim() != 2 {
             panic!("Blas::gemv(): self is not in 1 dimension or a is not in 2 dimension({} != 1 || {} != 2)", self.dim(), x.dim());
         }
+        let mut trans = 0;
         if a.shape()[0] == self.shape()[0] && a.shape()[1] == x.shape()[0] {
-            unsafe {
-                cblas_dgemv(CBLAS_ROW_MAJOR, CBLAS_NO_TRANS, a.shape()[0] as isize, a.shape()[1] as isize, alpha, a.get_data().as_ptr(), a.strides()[0] as isize, x.get_data().as_ptr(), 1, beta, self.get_data_mut().as_mut_ptr(), 1);
-            }
+            trans = CBLAS_NO_TRANS
         }
         else if  a.shape()[0] == x.shape()[0] && a.shape()[1] == self.shape()[0] {
-            unsafe {
-                cblas_dgemv(CBLAS_ROW_MAJOR, CBLAS_TRANS, a.shape()[0] as isize, a.shape()[1] as isize, alpha, a.get_data().as_ptr(), a.strides()[0] as isize, x.get_data().as_ptr(), 1, beta, self.get_data_mut().as_mut_ptr(), 1);
-            }
+            trans = CBLAS_TRANS
         }
         else {
             panic!("Blas::gemv(): a dimensions ({:?} do not match y ({:?}) and x ({:?})", a.shape(), self.shape(), x.shape());
+        }
+
+        unsafe {
+            cblas_dgemv(CBLAS_ROW_MAJOR, trans, a.shape()[0] as isize, a.shape()[1] as isize, alpha, a.get_data().as_ptr(), a.strides()[0] as isize, x.get_data().as_ptr(), 1, beta, self.get_data_mut().as_mut_ptr(), 1);
+        }
+    }
+
+    #[allow(unused_assignments)]
+    fn gemm(&mut self, alpha : f64, a : &NDData<f64>, b : &NDData<f64>, beta : f64) {
+        if self.dim() != 2 || a.dim() != 2 || b.dim() != 2 {
+            panic!("Blas::gemm(): a, b or c is not in 2 dimension({} != 2 || {} != 2 || {} != 2)", a.dim(), b.dim(), self.dim());
+        }
+
+        let mut transa = 0;
+        let mut transb = 0;
+        let mut k = 0;
+        if self.shape()[0] == a.shape()[0] && self.shape()[1] == b.shape()[1] && a.shape()[1] == b.shape()[0] {
+            transa = CBLAS_NO_TRANS;
+            transb = CBLAS_NO_TRANS;
+            k = a.shape()[1];
+        }
+        else if self.shape()[0] == a.shape()[1] && self.shape()[1] == b.shape()[1] && a.shape()[0] == b.shape()[0] {
+            transa = CBLAS_TRANS;
+            transb = CBLAS_NO_TRANS;
+            k = a.shape()[0];
+        }
+        else if self.shape()[0] == a.shape()[0] && self.shape()[1] == b.shape()[0] && a.shape()[1] == b.shape()[1] {
+            transa = CBLAS_NO_TRANS;
+            transb = CBLAS_TRANS;
+            k = a.shape()[1];
+        }
+        else if self.shape()[0] == a.shape()[1] && self.shape()[1] == b.shape()[0] && a.shape()[0] == b.shape()[1] {
+            transa = CBLAS_TRANS;
+            transb = CBLAS_TRANS;
+            k = a.shape()[0];
+        }
+        else {
+            panic!("Blas::gemm(): a dimensions ({:?} do not match b ({:?}) and c ({:?})", a.shape(), b.shape(), self.shape());
+        }
+        unsafe {
+            cblas_dgemm(CBLAS_ROW_MAJOR, transa, transb, self.shape()[0] as isize, self.shape()[1] as isize, k as isize, alpha, a.get_data().as_ptr(), a.strides()[0] as isize, b.get_data().as_ptr(), b.strides()[0] as isize, beta, self.get_data_mut().as_mut_ptr(), self.strides()[0] as isize);
         }
     }
 }
@@ -222,6 +305,10 @@ impl<T : Clone + Display + From<f32>, I : NDData<T> + Sized> MulAssign<I> for ND
             let x = NDArray::<T>::copy(self);
             self.gemv(T::from(1.0), &rhs, &x, T::from(0.0));
         }
+        else if self.dim() == 2 && rhs.dim() == 2 {
+            let a = NDArray::<T>::copy(self);
+            self.gemm(T::from(1.0), &a, &rhs, T::from(0.0));
+        }
         else {
             panic!("MulAssign could not find a blas operation between NDData of dimension {} and {}", self.dim(), rhs.dim());
         }
@@ -235,6 +322,10 @@ impl<'a, T : Clone + Display + From<f32>, I : NDData<T> + Sized> MulAssign<I> fo
         if self.dim() == 1 && rhs.dim() == 2 {
             let x = NDArray::<T>::copy(self);
             self.gemv(T::from(1.0), &rhs, &x, T::from(0.0));
+        }
+        else if self.dim() == 2 && rhs.dim() == 2 {
+            let a = NDArray::<T>::copy(self);
+            self.gemm(T::from(1.0), &a, &rhs, T::from(0.0));
         }
         else {
             panic!("MulAssign could not find a blas operation between NDData of dimension {} and {}", self.dim(), rhs.dim());

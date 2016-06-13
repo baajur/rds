@@ -1,7 +1,6 @@
 0.0.2
 =====
 
-* blas gemm
 * overload ops
 * Index trait 
 * documentation

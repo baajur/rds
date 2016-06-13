@@ -192,15 +192,71 @@ fn gemv_shouldpanic() {
 }
 
 #[test]
+fn gemm_f32() {
+    let mut matrixa = NDArray::<f32>::from_slice(&[4,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0]);
+    let mut matrixb = NDArray::<f32>::from_slice(&[3,2], &[1.0, 2.0, 2.0, 1.0, 1.0, -1.0]);
+    let mut matrixc = NDArray::<f32>::from_slice(&[4,2], &[0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5]);
+    matrixc.gemm(1.0, &matrixa, &matrixb, 0.5);
+    assert!(matrixc == NDArray::<f32>::from_slice(&[4,2], &[3.25, 2.75, 2.75, 0.25, 2.25, 0.75, 3.75, 2.25]));
+    // Auto transpose
+    matrixa.transpose();
+    matrixc.gemm(1.0, &matrixa, &matrixb, 1.0);
+    assert!(matrixc == NDArray::<f32>::from_slice(&[4,2], &[6.25, 5.75, 5.75, 0.25, 4.25, 1.75, 7.75, 4.25]));
+    // Auto transpose
+    matrixa.transpose();
+    matrixb.transpose();
+    matrixc.gemm(1.0, &matrixa, &matrixb, 1.0);
+    assert!(matrixc == NDArray::<f32>::from_slice(&[4,2], &[9.25, 8.75, 8.75, 0.25, 6.25, 2.75, 11.75, 6.25]));
+    // Auto transpose
+    matrixb.transpose();
+    matrixc.gemm(1.0, &matrixa, &matrixb, 1.0);
+    assert!(matrixc == NDArray::<f32>::from_slice(&[4,2], &[12.25, 11.75, 11.75, 0.25, 8.25, 3.75, 15.75, 8.25]));
+}
+
+#[test]
+fn gemm_f64() {
+    let mut matrixa = NDArray::<f64>::from_slice(&[4,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0]);
+    let mut matrixb = NDArray::<f64>::from_slice(&[3,2], &[1.0, 2.0, 2.0, 1.0, 1.0, -1.0]);
+    let mut matrixc = NDArray::<f64>::from_slice(&[4,2], &[0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5]);
+    matrixc.gemm(1.0, &matrixa, &matrixb, 0.5);
+    assert!(matrixc == NDArray::<f64>::from_slice(&[4,2], &[3.25, 2.75, 2.75, 0.25, 2.25, 0.75, 3.75, 2.25]));
+    // Auto transpose
+    matrixa.transpose();
+    matrixc.gemm(1.0, &matrixa, &matrixb, 1.0);
+    assert!(matrixc == NDArray::<f64>::from_slice(&[4,2], &[6.25, 5.75, 5.75, 0.25, 4.25, 1.75, 7.75, 4.25]));
+    // Auto transpose
+    matrixa.transpose();
+    matrixb.transpose();
+    matrixc.gemm(1.0, &matrixa, &matrixb, 1.0);
+    assert!(matrixc == NDArray::<f64>::from_slice(&[4,2], &[9.25, 8.75, 8.75, 0.25, 6.25, 2.75, 11.75, 6.25]));
+    // Auto transpose
+    matrixb.transpose();
+    matrixc.gemm(1.0, &matrixa, &matrixb, 1.0);
+    assert!(matrixc == NDArray::<f64>::from_slice(&[4,2], &[12.25, 11.75, 11.75, 0.25, 8.25, 3.75, 15.75, 8.25]));
+}
+
+#[test]
+#[should_panic]
+fn gemm_shouldpanic() {
+    let mut matrixa = NDArray::<f64>::from_slice(&[4,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0]);
+    let matrixb = NDArray::<f64>::from_slice(&[3,2], &[1.0, 2.0, 2.0, 1.0, 1.0, -1.0]);
+    let matrixc = NDArray::<f64>::from_slice(&[4,2], &[0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5]);
+    matrixa.gemm(1.0, &matrixb, &matrixc, 0.5);
+}
+
+#[test]
 fn ops_overloading() {
     let mut array1 = NDArray::<f64>::from_slice(&[3], &[2.0, 4.0, 6.0]);
     let array2 = NDArray::<f64>::from_slice(&[3], &[3.0, 6.0, 9.0]);
     let array3 = NDArray::<f64>::from_slice(&[3], &[5.0, 10.0, 15.0]);
-    let matrix = NDArray::<f64>::from_slice(&[3,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0]);
+    let matrix1 = NDArray::<f64>::from_slice(&[3,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0]);
+    let mut matrix2 = NDArray::<f64>::copy(&matrix1);
+    matrix2.transpose();
+    matrix2 *= matrix1;
     array1 += array3;
     assert!(array1 == NDArray::<f64>::from_slice(&[3], &[7.0, 14.0, 21.0]));
     array1 -= array2;
     assert!(array1 == NDArray::<f64>::from_slice(&[3], &[4.0, 8.0, 12.0]));
-    array1 *= matrix;
-    assert!(array1 == NDArray::<f64>::from_slice(&[3], &[12.0, 20.0, 16.0]));
+    array1 *= matrix2;
+    assert!(array1 == NDArray::<f64>::from_slice(&[3], &[28.0, 32.0, 36.0]));
 }
