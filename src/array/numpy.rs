@@ -12,6 +12,7 @@ use self::num::{FromPrimitive, ToPrimitive};
 use self::byteorder::{ByteOrder, BigEndian, LittleEndian, ReadBytesExt, WriteBytesExt};
 
 use array::{NDArray, NDData};
+use array::ndindex::NDIndex;
 
 const NUMPY_MAGIC : [u8;6] = [0x93u8, b'N', b'U', b'M', b'P', b'Y'];
 
@@ -653,37 +654,14 @@ impl NumpyFile {
             }
             match self.order {
                 Order::RowMajor => {
-                    let mut i = idx.len();
-                    while i > 0 {
-                        idx[i-1] += 1;
-                        if idx[i-1] >= self.shape[i-1] {
-                            idx[i-1] = 0;
-                            i -= 1;
-                        }
-                        else {
-                            break;
-                        }
-                    }
-                    if i == 0 {
-                        break;
-                    }
+                    idx.inc_ro(array.shape())
                 },
                 Order::ColumnMajor => {
-                    let mut i = 0;
-                    while i < idx.len() {
-                        idx[i] += 1;
-                        if idx[i] >= self.shape[i] {
-                            idx[i] = 0;
-                            i += 1;
-                        }
-                        else {
-                            break;
-                        }
-                    }
-                    if i == idx.len() {
-                        break;
-                    }
+                    idx.inc_co(array.shape())
                 }
+            }
+            if idx.is_zero() {
+                break;
             }
         }
 

@@ -1,7 +1,6 @@
 array
 =====
 
-* Index trait 
 * Complex types
 * Join, extract, remove, split (extract + remove)
 * Make generic transpose in place

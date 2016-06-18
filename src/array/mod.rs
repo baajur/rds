@@ -3,8 +3,11 @@ use std::iter::repeat;
 use std::fmt::Display;
 use std::ops::{Index, IndexMut};
 
+pub mod ndindex;
 pub mod csv;
 pub mod numpy;
+
+use array::ndindex::NDIndex;
 
 pub trait NDData<T> {
 
@@ -26,13 +29,7 @@ pub trait NDData<T> {
         if idx.len() != self.shape().len() {
             panic!("NDData::idx({:?}): idx is not of the right dimension ({} != {})", idx, idx.len(), self.dim());
         }
-        let mut pos = 0usize;
-        for i in 0..idx.len() {
-            if idx[i] >= self.shape()[i] {
-                panic!("NDData::idx({:?}): idx is out of bound for dimension {} (shape: {:?})", idx, i, self.shape());
-            }
-            pos += idx[i] * self.strides()[i];
-        }
+        let pos = idx.to_pos(self.shape(), self.strides());
         return &self.get_data()[pos];
     }
 }
@@ -45,14 +42,7 @@ pub trait NDDataMut<T : Clone + Display> : NDData<T> {
         if idx.len() != self.shape().len() {
             panic!("NDDataMut::idx_mut({:?}): idx is not of the right dimension ({} != {})", idx, idx.len(), self.dim());
         }
-        let mut pos = 0usize;
-        for i in 0..idx.len() {
-            if idx[i] >= self.shape()[i] {
-                panic!("NDDataMut::idx_mut({:?}): idx is out of bound for dimension {} (shape: {:?})", 
-                        idx, i, self.shape());
-            }
-            pos += idx[i] * self.strides()[i];
-        }
+        let pos = idx.to_pos(self.shape(), self.strides());
         return &mut self.get_data_mut()[pos];
     }
 
@@ -71,18 +61,8 @@ pub trait NDDataMut<T : Clone + Display> : NDData<T> {
             let revidx : Vec<usize> = idx.iter().rev().cloned().collect();
             *self.idx_mut(&idx[..]) = copy.idx(&revidx[..]).clone();
             // Update idx
-            let mut i = 0;
-            while i < idx.len() {
-                idx[i] += 1;
-                if idx[i] >= self.shape()[i] {
-                        idx[i] = 0;
-                    i += 1;
-                }
-                else {
-                    break;
-                }
-            }
-            if i == idx.len() {
+            idx.inc_ro(self.shape());
+            if idx.is_zero() {
                 break;
             }
         }
@@ -101,18 +81,8 @@ pub trait NDDataMut<T : Clone + Display> : NDData<T> {
         loop {
             *self.idx_mut(&idx[..]) = other.idx(&idx[..]).clone();
             // Update idx
-            let mut i = 0;
-            while i < idx.len() {
-                idx[i] += 1;
-                if idx[i] >= self.shape()[i] {
-                        idx[i] = 0;
-                    i += 1;
-                }
-                else {
-                    break;
-                }
-            }
-            if i == idx.len() {
+            idx.inc_ro(self.shape());
+            if idx.is_zero() {
                 break;
             }
         }
@@ -235,18 +205,8 @@ impl<T : Clone + Display> NDDataMut<T> for NDArray<T> {
             let revidx : Vec<usize> = idx.iter().rev().cloned().collect();
             *self.idx_mut(&idx[..]) = copy.idx(&revidx[..]).clone();
             // Update idx
-            let mut i = 0;
-            while i < idx.len() {
-                idx[i] += 1;
-                if idx[i] >= self.shape()[i] {
-                        idx[i] = 0;
-                    i += 1;
-                }
-                else {
-                    break;
-                }
-            }
-            if i == idx.len() {
+            idx.inc_ro(self.shape());
+            if idx.is_zero() {
                 break;
             }
         }
@@ -576,18 +536,8 @@ impl<T : PartialEq, O : NDData<T> + Sized> PartialEq<O> for NDArray<T> {
                 return false;
             }
             // Update idx
-            let mut i = 0;
-            while i < idx.len() {
-                idx[i] += 1;
-                if idx[i] >= self.shape()[i] {
-                        idx[i] = 0;
-                    i += 1;
-                }
-                else {
-                    break;
-                }
-            }
-            if i == idx.len() {
+            idx.inc_ro(self.shape());
+            if idx.is_zero() {
                 break;
             }
         }
@@ -617,18 +567,8 @@ impl<'a, T : PartialEq, O : NDData<T> + Sized> PartialEq<O> for NDSlice<'a, T> {
                 return false;
             }
             // Update idx
-            let mut i = 0;
-            while i < idx.len() {
-                idx[i] += 1;
-                if idx[i] >= self.shape()[i] {
-                        idx[i] = 0;
-                    i += 1;
-                }
-                else {
-                    break;
-                }
-            }
-            if i == idx.len() {
+            idx.inc_ro(self.shape());
+            if idx.is_zero() {
                 break;
             }
         }
@@ -658,18 +598,8 @@ impl<'a, T : PartialEq, O : NDData<T> + Sized> PartialEq<O> for NDSliceMut<'a, T
                 return false;
             }
             // Update idx
-            let mut i = 0;
-            while i < idx.len() {
-                idx[i] += 1;
-                if idx[i] >= self.shape()[i] {
-                        idx[i] = 0;
-                    i += 1;
-                }
-                else {
-                    break;
-                }
-            }
-            if i == idx.len() {
+            idx.inc_ro(self.shape());
+            if idx.is_zero() {
                 break;
             }
         }
