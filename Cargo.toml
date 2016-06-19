@@ -1,13 +1,16 @@
 [package]
 name = "rds"
-version = "0.0.0"
+version = "0.0.1"
 authors = ["Charles Hubain <github@haxelion.eu>"]
 description = "Rust Data Science"
-documentation = "https://github.com/haxelion/rds"
+documentation = "https://haxelion.github.io/rds/target/doc/rds/index.html"
 homepage = "https://github.com/haxelion/rds"
 repository = "https://github.com/haxelion/rds"
 readme = "README.md"
 license = "LGPL-3.0"
 
 [dependencies]
+num = "0.1.32"
+byteorder = "0.5"
 csv = "0.14"
+libc = "0.2.11"

@@ -2,6 +2,7 @@ RDS
 ===
 
 [![Build Status](https://travis-ci.org/haxelion/rds.svg?branch=master)](https://travis-ci.org/haxelion/rds)
+[![crates.io](http://meritbadge.herokuapp.com/rds)](https://crates.io/crates/rds)
 
 Rust Data Science is an attempt at bringing a solid basis for doing data science under rust. 
 There already exist several scientific / data science library for rust but I'm not satisfied with 
@@ -26,6 +27,11 @@ Plan
 
 On this basis we can hope to develop additional packages for linear algebra, statistics, 
 signal processing, machine learning, neural networks.
+
+Documentation
+-------------
+
+[Online documentation](https://haxelion.github.io/rds/target/doc/rds/index.html)
 
 Does it work ?
 --------------
