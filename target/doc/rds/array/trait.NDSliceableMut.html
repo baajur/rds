@@ -47,13 +47,18 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-149' class='srclink' href='../../src/rds/src/array/mod.rs.html#26-29' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait NDSliceableMut&lt;'a, T: 'a&gt; {
+               </span><a id='src-595' class='srclink' href='../../src/rds/src/array/mod.rs.html#120-127' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait NDSliceableMut&lt;'a, T: 'a&gt;: <a class='trait' href='../../rds/array/trait.NDSliceable.html' title='rds::array::NDSliceable'>NDSliceable</a>&lt;'a, T&gt; {
     fn <a href='#tymethod.slice_mut' class='fnname'>slice_mut</a>(&amp;'a mut self, idx: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='struct' href='../../rds/array/struct.NDSliceMut.html' title='rds::array::NDSliceMut'>NDSliceMut</a>&lt;'a, T&gt;;
-}</pre>
+}</pre><div class='docblock'><p>A trait for N-dimensional data which can be sliced into a mutable sub slice.</p>
+</div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.slice_mut' class='method stab '><code>fn <a href='#tymethod.slice_mut' class='fnname'>slice_mut</a>(&amp;'a mut self, idx: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='struct' href='../../rds/array/struct.NDSliceMut.html' title='rds::array::NDSliceMut'>NDSliceMut</a>&lt;'a, T&gt;</code></h3></div>
+        <h3 id='tymethod.slice_mut' class='method stab '><code>fn <a href='#tymethod.slice_mut' class='fnname'>slice_mut</a>(&amp;'a mut self, idx: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='struct' href='../../rds/array/struct.NDSliceMut.html' title='rds::array::NDSliceMut'>NDSliceMut</a>&lt;'a, T&gt;</code></h3><div class='docblock'><p>Take a slice of length &lt; N representing the sub slice index and return immutable borrow of
+the sub slice as an NDSlice.
+Because the storage is in row-major order and the slice need to be contiguous in the 
+underlying storage array it means, for example, only the rows of a matrix can be borrowed.</p>
+</div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
     <li><code>impl&lt;'a, T: 'a&gt; <a class='trait' href='../../rds/array/trait.NDSliceableMut.html' title='rds::array::NDSliceableMut'>NDSliceableMut</a>&lt;'a, T&gt; for <a class='struct' href='../../rds/array/struct.NDArray.html' title='rds::array::NDArray'>NDArray</a>&lt;T&gt;</code></li>

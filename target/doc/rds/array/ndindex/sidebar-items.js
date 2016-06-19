@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["NDIndex","A trait which adds indexing functions to simplify index manipulation."]]});

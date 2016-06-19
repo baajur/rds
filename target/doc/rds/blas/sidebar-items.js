@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["Blas","A trait representing N-dimensional array on which blas functions can be applied."]]});

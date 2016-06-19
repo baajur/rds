@@ -47,12 +47,26 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-4' class='srclink' href='../../src/rds/src/array/mod.rs.html#1-331' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-4' class='srclink' href='../../src/rds/src/array/mod.rs.html#1-648' title='goto source code'>[src]</a></span></h1>
 <h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
                        <tr class=' module-item'>
                            <td><a class='mod' href='csv/index.html'
                                   title='rds::array::csv'>csv</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='ndindex/index.html'
+                                  title='rds::array::ndindex'>ndindex</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='numpy/index.html'
+                                  title='rds::array::numpy'>numpy</a></td>
                            <td class='docblock short'>
                                 
                            </td>
@@ -62,21 +76,22 @@
                            <td><a class='struct' href='struct.NDArray.html'
                                   title='rds::array::NDArray'>NDArray</a></td>
                            <td class='docblock short'>
-                                
+                                <p>Structure representing an owned n-dimensional array. The underlying storage is in row-major
+order.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
                            <td><a class='struct' href='struct.NDSlice.html'
                                   title='rds::array::NDSlice'>NDSlice</a></td>
                            <td class='docblock short'>
-                                
+                                <p>Structure representing an immutable borrow of a n-dimensional array sub slice.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
                            <td><a class='struct' href='struct.NDSliceMut.html'
                                   title='rds::array::NDSliceMut'>NDSliceMut</a></td>
                            <td class='docblock short'>
-                                
+                                <p>Structure representing an mutable borrow of a n-dimensional array sub slice.</p>
                            </td>
                        </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
@@ -84,21 +99,28 @@
                            <td><a class='trait' href='trait.NDData.html'
                                   title='rds::array::NDData'>NDData</a></td>
                            <td class='docblock short'>
-                                
+                                <p>A trait for struture giving immutable access to a N-dimensional array of type T</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='trait' href='trait.NDDataMut.html'
+                                  title='rds::array::NDDataMut'>NDDataMut</a></td>
+                           <td class='docblock short'>
+                                <p>A trait for struture giving mutable access to a N-dimensional array of type T</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
                            <td><a class='trait' href='trait.NDSliceable.html'
                                   title='rds::array::NDSliceable'>NDSliceable</a></td>
                            <td class='docblock short'>
-                                
+                                <p>A trait for N-dimensional data which can be sliced into a immutable sub slice.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
                            <td><a class='trait' href='trait.NDSliceableMut.html'
                                   title='rds::array::NDSliceableMut'>NDSliceableMut</a></td>
                            <td class='docblock short'>
-                                
+                                <p>A trait for N-dimensional data which can be sliced into a mutable sub slice.</p>
                            </td>
                        </tr></table></section>
     <section id='search' class="content hidden"></section>

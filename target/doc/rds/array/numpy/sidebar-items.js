@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["DType","Enumeration representing the supported numpy dtypes."],["Endianess","Enumeration representing the endianess."],["Order","Enumeration representing the storage order."]],"struct":[["NumpyFile","Structure representing a numpy array file (.npy)."]]});

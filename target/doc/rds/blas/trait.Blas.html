@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Blas` trait in crate `rds`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Blas">
+
+    <title>rds::blas::Blas - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>rds</a>::<wbr><a href='index.html'>blas</a></p><script>window.sidebarCurrent = {name: 'Blas', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>rds</a>::<wbr><a href='index.html'>blas</a>::<wbr><a class='trait' href=''>Blas</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-1136' class='srclink' href='../../src/rds/src/blas/mod.rs.html#35-62' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait Blas&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html' title='core::fmt::Display'>Display</a>&gt;: <a class='trait' href='../../rds/array/trait.NDDataMut.html' title='rds::array::NDDataMut'>NDDataMut</a>&lt;T&gt; {
+    fn <a href='#tymethod.asum' class='fnname'>asum</a>(&amp;self) -&gt; T;
+    fn <a href='#tymethod.nrm2' class='fnname'>nrm2</a>(&amp;self) -&gt; T;
+    fn <a href='#tymethod.scal' class='fnname'>scal</a>(&amp;mut self, a: T);
+    fn <a href='#tymethod.axpy' class='fnname'>axpy</a>(&amp;mut self, a: T, x: &amp;<a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt;);
+    fn <a href='#tymethod.dot' class='fnname'>dot</a>(&amp;self, x: &amp;<a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt;) -&gt; T;
+    fn <a href='#tymethod.gemv' class='fnname'>gemv</a>(&amp;mut self, alpha: T, a: &amp;<a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt;, x: &amp;<a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt;, beta: T);
+    fn <a href='#tymethod.gemm' class='fnname'>gemm</a>(&amp;mut self, alpha: T, a: &amp;<a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt;, b: &amp;<a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt;, beta: T);
+}</pre><div class='docblock'><p>A trait representing N-dimensional array on which blas functions can be applied.</p>
+</div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.asum' class='method stab '><code>fn <a href='#tymethod.asum' class='fnname'>asum</a>(&amp;self) -&gt; T</code></h3><div class='docblock'><p>Compute an element-wise sum of the N-dimensional array.</p>
+</div><h3 id='tymethod.nrm2' class='method stab '><code>fn <a href='#tymethod.nrm2' class='fnname'>nrm2</a>(&amp;self) -&gt; T</code></h3><div class='docblock'><p>Compute the euclidian norm of the N-dimensional array.</p>
+</div><h3 id='tymethod.scal' class='method stab '><code>fn <a href='#tymethod.scal' class='fnname'>scal</a>(&amp;mut self, a: T)</code></h3><div class='docblock'><p>Scale the N-dimensional array by a factor a.</p>
+</div><h3 id='tymethod.axpy' class='method stab '><code>fn <a href='#tymethod.axpy' class='fnname'>axpy</a>(&amp;mut self, a: T, x: &amp;<a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt;)</code></h3><div class='docblock'><p>Compute y += a * x where y is this array, x is a N-dimensional array of the same size as y
+and a is a scalar.</p>
+</div><h3 id='tymethod.dot' class='method stab '><code>fn <a href='#tymethod.dot' class='fnname'>dot</a>(&amp;self, x: &amp;<a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt;) -&gt; T</code></h3><div class='docblock'><p>Compute the dot product of this array and x.</p>
+</div><h3 id='tymethod.gemv' class='method stab '><code>fn <a href='#tymethod.gemv' class='fnname'>gemv</a>(&amp;mut self, alpha: T, a: &amp;<a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt;, x: &amp;<a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt;, beta: T)</code></h3><div class='docblock'><p>Compute y = alpha * a * x + beta * y where y is this array, x is a one dimensional array, a
+a two dimensional array and alpha and beta are scalars.
+Automatically determine whether a need to be transposed.</p>
+</div><h3 id='tymethod.gemm' class='method stab '><code>fn <a href='#tymethod.gemm' class='fnname'>gemm</a>(&amp;mut self, alpha: T, a: &amp;<a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt;, b: &amp;<a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt;, beta: T)</code></h3><div class='docblock'><p>Compute y = alpha * a * x + beta * y where y is this array, a and b are two dimensional
+arrays and alpha and beta are scalars.
+Automatically determine whether a and b need to be transposed.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    </ul><script type="text/javascript" async
+                         src="../../implementors/rds/blas/trait.Blas.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "rds";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

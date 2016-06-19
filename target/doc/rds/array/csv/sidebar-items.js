@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CSVFile",""]]});
+initSidebarItems({"struct":[["CSVFile","Structure representing a Comma Separated Value file."]]});

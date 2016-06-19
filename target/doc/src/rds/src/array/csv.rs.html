@@ -240,6 +240,25 @@
 <span id="196">196</span>
 <span id="197">197</span>
 <span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
 </pre><pre class='rust '>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>csv</span>;
 
@@ -253,15 +272,23 @@
 
 <span class='kw'>use</span> <span class='ident'>array</span>::{<span class='ident'>NDArray</span>, <span class='ident'>NDData</span>};
 
+<span class='doccomment'>/// Structure representing a Comma Separated Value file.</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>CSVFile</span> {
     <span class='ident'>path</span> : <span class='ident'>String</span>,
+    <span class='doccomment'>/// A boolean indicating whether the first row should be treated as a header.</span>
     <span class='kw'>pub</span> <span class='ident'>header</span> : <span class='ident'>bool</span>,
+    <span class='doccomment'>/// A boolean indicating whether a variable number of column should be allowed between rows.</span>
     <span class='kw'>pub</span> <span class='ident'>flexible</span> : <span class='ident'>bool</span>,
+    <span class='doccomment'>/// The value delimiter, b&#39;,&#39; by default.</span>
     <span class='kw'>pub</span> <span class='ident'>delimiter</span> : <span class='ident'>u8</span>,
+    <span class='doccomment'>/// The quote delimiter, b&#39;&quot;&#39; by default.</span>
     <span class='kw'>pub</span> <span class='ident'>quote</span> : <span class='ident'>u8</span>,
 }
 
 <span class='kw'>impl</span> <span class='ident'>CSVFile</span> {
+
+    <span class='doccomment'>/// Allocate a new CSVFile structure with a given path. This function neither create nor open </span>
+    <span class='doccomment'>/// the file specified by the path.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>path</span> : <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>CSVFile</span> {
         <span class='ident'>CSVFile</span> {
             <span class='ident'>path</span> : <span class='ident'>path</span>.<span class='ident'>to_string</span>(),
@@ -300,6 +327,9 @@
         }
     }
 
+    <span class='doccomment'>/// Open the CSV file for reading and read the row at row_idx (index starting at 0) as a one </span>
+    <span class='doccomment'>/// dimensional array.</span>
+    <span class='doccomment'>/// In case of failure, returns the error as a string.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>read_row</span><span class='op'>&lt;</span><span class='ident'>T</span> : <span class='ident'>FromStr</span> <span class='op'>+</span> <span class='ident'>Clone</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>row_idx</span> : <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>NDArray</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>, <span class='ident'>String</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>data</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>::<span class='ident'>new</span>();
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>shape</span> <span class='op'>=</span> [<span class='number'>0usize</span>;<span class='number'>1</span>];
@@ -332,6 +362,9 @@
         <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(<span class='ident'>NDArray</span>::<span class='ident'>from_slice</span>(<span class='kw-2'>&amp;</span><span class='ident'>shape</span>[..], <span class='kw-2'>&amp;</span><span class='ident'>data</span>[..]));
     }
 
+    <span class='doccomment'>/// Open the CSV file for reading and read the column at column_idx (index starting at 0) as a </span>
+    <span class='doccomment'>/// one dimensional array.</span>
+    <span class='doccomment'>/// In case of failure, returns the error as a string.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>read_column</span><span class='op'>&lt;</span><span class='ident'>T</span> : <span class='ident'>FromStr</span> <span class='op'>+</span> <span class='ident'>Clone</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>column_idx</span> : <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>NDArray</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>, <span class='ident'>String</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>data</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>::<span class='ident'>new</span>();
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>shape</span> <span class='op'>=</span> [<span class='number'>0usize</span>;<span class='number'>1</span>];
@@ -366,6 +399,8 @@
         <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(<span class='ident'>NDArray</span>::<span class='ident'>from_slice</span>(<span class='kw-2'>&amp;</span><span class='ident'>shape</span>[..], <span class='kw-2'>&amp;</span><span class='ident'>data</span>[..]));
     }
 
+    <span class='doccomment'>/// Open the CSV file for reading and read the whole file as a two dimensional array.</span>
+    <span class='doccomment'>/// In case of failure, returns the error as a string.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>read_2darray</span><span class='op'>&lt;</span><span class='ident'>T</span> : <span class='ident'>FromStr</span> <span class='op'>+</span> <span class='ident'>Clone</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>NDArray</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>, <span class='ident'>String</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>data</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>::<span class='ident'>new</span>();
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>shape</span> <span class='op'>=</span> [<span class='number'>0usize</span>;<span class='number'>2</span>];
@@ -398,6 +433,9 @@
         <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(<span class='ident'>NDArray</span>::<span class='ident'>from_slice</span>(<span class='kw-2'>&amp;</span><span class='ident'>shape</span>[..], <span class='kw-2'>&amp;</span><span class='ident'>data</span>[..]));
     }
 
+    <span class='doccomment'>/// Open (or create) the CSV file for writing and write a two dimensional array in it. This </span>
+    <span class='doccomment'>/// function overwrite any data already present in the file.</span>
+    <span class='doccomment'>/// In case of failure, returns the error as a string.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>write_data</span><span class='op'>&lt;</span><span class='ident'>T</span> : <span class='ident'>Display</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>data</span> : <span class='kw-2'>&amp;</span><span class='ident'>NDData</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>String</span><span class='op'>&gt;</span>  {
         <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>data</span>.<span class='ident'>dim</span>() <span class='op'>&lt;=</span> <span class='number'>2</span>);
 
