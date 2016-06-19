@@ -31,20 +31,33 @@ extern {
     fn cblas_dgemm (layout : libc::c_int, transa : libc::c_int, transb : libc::c_int, m : isize, n : isize, k : isize, alpha : libc::c_double, a : *const libc::c_double, lda : isize, b : *const libc::c_double, ldb : isize, beta : libc::c_double, c : *mut libc::c_double, ldc : isize) -> libc::c_void;
 }
 
+/// A trait representing N-dimensional array on which blas functions can be applied.
 pub trait Blas<T : Clone + Display> : NDDataMut<T> {
 
+    /// Compute an element-wise sum of the N-dimensional array.
     fn asum(&self) -> T;
 
+    /// Compute the euclidian norm of the N-dimensional array.
     fn nrm2(&self) -> T;
 
+    /// Scale the N-dimensional array by a factor a.
     fn scal(&mut self, a : T);
 
+    /// Compute y += a * x where y is this array, x is a N-dimensional array of the same size as y 
+    /// and a is a scalar.
     fn axpy(&mut self, a : T, x : &NDData<T>);
 
+    /// Compute the dot product of this array and x.
     fn dot(&self, x : &NDData<T>) -> T;
 
+    /// Compute y = alpha * a * x + beta * y where y is this array, x is a one dimensional array, a 
+    /// a two dimensional array and alpha and beta are scalars.
+    /// Automatically determine whether a need to be transposed.
     fn gemv(&mut self, alpha : T, a : &NDData<T>, x : &NDData<T>, beta : T);
 
+    /// Compute y = alpha * a * x + beta * y where y is this array, a and b are two dimensional 
+    /// arrays and alpha and beta are scalars.
+    /// Automatically determine whether a and b need to be transposed.
     fn gemm(&mut self, alpha : T, a : &NDData<T>, b : &NDData<T>, beta : T);
 }
 

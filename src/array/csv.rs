@@ -10,15 +10,23 @@ use std::str::FromStr;
 
 use array::{NDArray, NDData};
 
+/// Structure representing a Comma Separated Value file.
 pub struct CSVFile {
     path : String,
+    /// A boolean indicating whether the first row should be treated as a header.
     pub header : bool,
+    /// A boolean indicating whether a variable number of column should be allowed between rows.
     pub flexible : bool,
+    /// The value delimiter, b',' by default.
     pub delimiter : u8,
+    /// The quote delimiter, b'"' by default.
     pub quote : u8,
 }
 
 impl CSVFile {
+
+    /// Allocate a new CSVFile structure with a given path. This function neither create nor open 
+    /// the file specified by the path.
     pub fn new(path : &str) -> CSVFile {
         CSVFile {
             path : path.to_string(),
@@ -57,6 +65,9 @@ impl CSVFile {
         }
     }
 
+    /// Open the CSV file for reading and read the row at row_idx (index starting at 0) as a one 
+    /// dimensional array.
+    /// In case of failure, returns the error as a string.
     pub fn read_row<T : FromStr + Clone>(&self, row_idx : usize) -> Result<NDArray<T>, String> {
         let mut data = Vec::<T>::new();
         let mut shape = [0usize;1];
@@ -89,6 +100,9 @@ impl CSVFile {
         return Ok(NDArray::from_slice(&shape[..], &data[..]));
     }
 
+    /// Open the CSV file for reading and read the column at column_idx (index starting at 0) as a 
+    /// one dimensional array.
+    /// In case of failure, returns the error as a string.
     pub fn read_column<T : FromStr + Clone>(&self, column_idx : usize) -> Result<NDArray<T>, String> {
         let mut data = Vec::<T>::new();
         let mut shape = [0usize;1];
@@ -123,6 +137,8 @@ impl CSVFile {
         return Ok(NDArray::from_slice(&shape[..], &data[..]));
     }
 
+    /// Open the CSV file for reading and read the whole file as a two dimensional array.
+    /// In case of failure, returns the error as a string.
     pub fn read_2darray<T : FromStr + Clone>(&self) -> Result<NDArray<T>, String> {
         let mut data = Vec::<T>::new();
         let mut shape = [0usize;2];
@@ -155,6 +171,9 @@ impl CSVFile {
         return Ok(NDArray::from_slice(&shape[..], &data[..]));
     }
 
+    /// Open (or create) the CSV file for writing and write a two dimensional array in it. This 
+    /// function overwrite any data already present in the file.
+    /// In case of failure, returns the error as a string.
     pub fn write_data<T : Display>(&mut self, data : &NDData<T>) -> Result<(), String>  {
         assert!(data.dim() <= 2);
 

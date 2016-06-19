@@ -16,6 +16,7 @@ use array::ndindex::NDIndex;
 
 const NUMPY_MAGIC : [u8;6] = [0x93u8, b'N', b'U', b'M', b'P', b'Y'];
 
+/// Enumeration representing the supported numpy dtypes.
 pub enum DType {
     U8,
     U16,
@@ -29,16 +30,19 @@ pub enum DType {
     F64,
 }
 
+/// Enumeration representing the storage order.
 pub enum Order {
     RowMajor,
     ColumnMajor
 }
 
+/// Enumeration representing the endianess.
 pub enum Endianess {
     LittleEndian,
     BigEndian,
 }
 
+/// Structure representing a numpy array file (.npy).
 pub struct NumpyFile {
     path : String,
     shape : Vec<usize>,
@@ -270,6 +274,9 @@ fn write_to_f64<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Re
 }
 
 impl NumpyFile {
+
+    /// Allocate a new NumpyFile structure with a given path. This function neither create nor open 
+    /// the file specified by the path.
     pub fn new(path : &str) -> NumpyFile {
         NumpyFile {
             path : path.to_string(),
@@ -294,6 +301,9 @@ impl NumpyFile {
         }
     }
 
+    /// Open the Numpy file for reading and parse the header, storing the results in the dtype, 
+    /// order and endianess fields.
+    /// In case of failure, returns the error as a string.
     #[allow(unused_assignments)]
     pub fn read_header(&mut self, file : &mut File) -> Result<(),String> {
         let mut magic = [0u8;6];
@@ -454,6 +464,9 @@ impl NumpyFile {
         return Ok(());
     }
 
+    /// Open the Numpy file for reading and read the entire numpy array as a NDArray<T>. This 
+    /// function operates its own type convertion from the dtype to the type T.
+    /// In case of failure, returns the error as a string.
     pub fn read_array<T : Clone + FromPrimitive + Display>(&mut self) -> Result<NDArray<T>, String>  {
         let mut reader = match self.get_reader() {
             Ok(r) => r,
@@ -573,12 +586,16 @@ impl NumpyFile {
         return Ok(array);
     }
 
-    pub fn write_array<T : Clone + ToPrimitive + Display>(&mut self, array : &NDArray<T>) -> Result<(), String>  {
+    /// Open (or create) the Numpy file for writing and write the entire NDData<T> in it. This 
+    /// function operates its own type convertion from the type T to the dtype. It is thus 
+    /// important to specify the desired dtype in the NumpyFile structure.
+    /// In case of failure, returns the error as a string.
+    pub fn write_array<T : Clone + ToPrimitive + Display>(&mut self, array : &NDData<T>) -> Result<(), String>  {
         let mut writer = match self.get_writer() {
             Ok(w) => w,
             Err(e) => return Err(e)
         };
-        self.shape = array.shape.clone();
+        self.shape = array.shape().to_vec();
         if let Err(e) = self.write_header(&mut writer) {
             return Err(e);
         }
@@ -649,7 +666,7 @@ impl NumpyFile {
         let mut idx : Vec<usize> = repeat(0usize).take(array.dim()).collect();
 
         loop {
-            if let Err(e) = writechain(&mut writer, array[&idx[..]].clone()) {
+            if let Err(e) = writechain(&mut writer, array.idx(&idx[..]).clone()) {
                 return Err(e)
             }
             match self.order {

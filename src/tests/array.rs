@@ -117,7 +117,7 @@ fn reshape() {
     for i in 0..3 {
         array[&[i]] = i as f64;
     }
-    assert!(array.reshape(&[1,3]) == Ok(()));
+    array.reshape(&[1,3]);
     for i in 0..3 {
         assert!(array[&[0,i]] == i as f64);
     }
@@ -130,7 +130,7 @@ fn reshape_invalid() {
     for i in 0..3 {
         array[&[i]] = i as f64;
     }
-    assert!(array.reshape(&[3,3]) == Ok(()));
+    array.reshape(&[3,3]);
     for i in 0..3 {
         assert!(array[&[i,i]] == i as f64);
     }

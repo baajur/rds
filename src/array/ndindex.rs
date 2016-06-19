@@ -1,15 +1,22 @@
+/// A trait which adds indexing functions to simplify index manipulation.
 pub trait NDIndex {
 
+    /// Increment an index in the row-major order.
     fn inc_ro(&mut self, shape : &[usize]);
 
+    /// Decrement an index in the row-major order.
     fn dec_ro(&mut self, shape : &[usize]);
 
+    /// Increment an index in the column-major order.
     fn inc_co(&mut self, shape : &[usize]);
 
+    /// Decrement an index in the column-major order.
     fn dec_co(&mut self, shape : &[usize]);
 
+    /// Return true if the index is zero for all dimensions.
     fn is_zero(&mut self) -> bool;
     
+    /// Compute the resulting position in the underlying storage array.
     fn to_pos(&self, shape : &[usize], strides : &[usize]) -> usize;
 }
 
