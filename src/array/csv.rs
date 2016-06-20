@@ -7,7 +7,6 @@ use std::fs::File;
 //use std::marker::Sized;
 //use std::ops::Index;
 use std::str::FromStr;
-
 use array::{NDArray, NDData};
 
 /// Structure representing a Comma Separated Value file.
@@ -139,7 +138,7 @@ impl CSVFile {
 
     /// Open the CSV file for reading and read the whole file as a two dimensional array.
     /// In case of failure, returns the error as a string.
-    pub fn read_2darray<T : FromStr + Clone>(&self) -> Result<NDArray<T>, String> {
+    pub fn read_array<T : FromStr + Clone>(&self) -> Result<NDArray<T>, String> {
         let mut data = Vec::<T>::new();
         let mut shape = [0usize;2];
         let mut reader = match self.get_reader() {

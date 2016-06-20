@@ -11,7 +11,7 @@ fn array() {
         }
     }
     assert!(csvfile.write_data(&array) == Ok(()));
-    let array2 : NDArray<f64> = csvfile.read_2darray().unwrap();
+    let array2 : NDArray<f64> = csvfile.read_array().unwrap();
     assert!(array2.shape() == array.shape());
     assert!(array2.strides() == array.strides());
     for i in 0..array2.shape()[0] {
