@@ -2,9 +2,9 @@ extern crate num;
 extern crate libc;
 
 use std::fmt::Display;
-use std::ops::{AddAssign, SubAssign, MulAssign};
+use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign};
 
-use array::{NDData, NDDataMut, NDArray, NDSliceMut};
+use array::{NDData, NDDataMut, NDArray, NDSlice, NDSliceMut};
 
 const CBLAS_ROW_MAJOR : libc::c_int = 101;
 #[allow(dead_code)]
@@ -270,19 +270,51 @@ impl<R> Blas<f64> for R where R : NDDataMut<f64> {
 ==================== AddAssign ====================
 */
 
-impl<T : Clone + Display + From<f32>, R : NDData<T> + Sized> AddAssign<R> for NDArray<T> where NDArray<T> : Blas<T> {
+impl<'a, T : Clone + Display + From<f32>, R : NDData<T> + Sized> AddAssign<&'a R> for NDArray<T> where NDArray<T> : Blas<T> {
 
-    #[inline(always)]
-    fn add_assign(&mut self, rhs: R) {
-        self.axpy(T::from(1.0f32), &rhs);
+    fn add_assign(&mut self, rhs: &'a R) {
+        self.axpy(T::from(1.0f32), rhs);
     }
 }
 
-impl<'b, T : Clone + Display + From<f32>, R : NDData<T> + Sized> AddAssign<R> for NDSliceMut<'b, T> where NDSliceMut<'b, T> : Blas<T> {
+impl<'a, 'b, T : Clone + Display + From<f32>, R : NDData<T> + Sized> AddAssign<&'a R> for NDSliceMut<'b, T> where NDSliceMut<'b, T> : Blas<T> {
 
-    #[inline(always)]
-    fn add_assign(&mut self, rhs: R) {
-        self.axpy(T::from(1.0f32), &rhs);
+    fn add_assign(&mut self, rhs: &'a R) {
+        self.axpy(T::from(1.0f32), rhs);
+    }
+}
+
+/*
+==================== Add ====================
+*/
+
+impl<'a, 'b, T : Clone + Display + From<f32>, R : NDData<T> + Sized> Add<&'a R> for &'b NDArray<T> where NDArray<T> : Blas<T> {
+    type Output = NDArray<T>;
+
+    fn add(self, rhs: &'a R) -> NDArray<T> {
+        let mut res = NDArray::<T>::copy(self);
+        res += rhs;
+        return res;
+    }
+}
+
+impl<'a, 'b, 'c, T : Clone + Display + From<f32>, R : NDData<T> + Sized> Add<&'a R> for &'b NDSlice<'c, T> where NDArray<T> : Blas<T> {
+    type Output = NDArray<T>;
+
+    fn add(self, rhs: &'a R) -> NDArray<T> {
+        let mut res = NDArray::<T>::copy(self);
+        res += rhs;
+        return res;
+    }
+}
+
+impl<'a, 'b, 'c, T : Clone + Display + From<f32>, R : NDData<T> + Sized> Add<&'a R> for &'b NDSliceMut<'c, T> where NDArray<T> : Blas<T> {
+    type Output = NDArray<T>;
+
+    fn add(self, rhs: &'a R) -> NDArray<T> {
+        let mut res = NDArray::<T>::copy(self);
+        res += rhs;
+        return res;
     }
 }
 
@@ -290,19 +322,52 @@ impl<'b, T : Clone + Display + From<f32>, R : NDData<T> + Sized> AddAssign<R> fo
 ==================== SubAssign ====================
 */
 
-impl<T : Clone + Display + From<f32>, R : NDData<T> + Sized> SubAssign<R> for NDArray<T> where NDArray<T> : Blas<T> {
+impl<'a, T : Clone + Display + From<f32>, R : NDData<T> + Sized> SubAssign<&'a R> for NDArray<T> where NDArray<T> : Blas<T> {
 
-    #[inline(always)]
-    fn sub_assign(&mut self, rhs: R) {
-        self.axpy(T::from(-1.0f32), &rhs);
+    fn sub_assign(&mut self, rhs: &'a R) {
+        self.axpy(T::from(-1.0f32), rhs);
     }
 }
 
-impl<'b, T : Clone + Display + From<f32>, R : NDData<T> + Sized> SubAssign<R> for NDSliceMut<'b, T> where NDSliceMut<'b, T> : Blas<T> {
+impl<'a, 'b, T : Clone + Display + From<f32>, R : NDData<T> + Sized> SubAssign<&'a R> for NDSliceMut<'b, T> where NDSliceMut<'b, T> : Blas<T> {
 
-    #[inline(always)]
-    fn sub_assign(&mut self, rhs: R) {
-        self.axpy(T::from(-1.0f32), &rhs);
+    fn sub_assign(&mut self, rhs: &'a R) {
+        self.axpy(T::from(-1.0f32), rhs);
+    }
+}
+
+/*
+==================== Sub ====================
+*/
+
+impl<'a, 'b, T : Clone + Display + From<f32>, R : NDData<T> + Sized> Sub<&'a R> for &'b NDArray<T> where NDArray<T> : Blas<T> {
+    type Output = NDArray<T>;
+
+    fn sub(self, rhs: &'a R) -> NDArray<T> {
+        let mut res = NDArray::<T>::copy(self);
+        res -= rhs;
+        return res;
+    }
+}
+
+impl<'a, 'b, 'c, T : Clone + Display + From<f32>, R : NDData<T> + Sized> Sub<&'a R> for &'b NDSlice<'c, T> where NDArray<T> : Blas<T> {
+    type Output = NDArray<T>;
+
+    fn sub(self, rhs: &'a R) -> NDArray<T> {
+        let mut res = NDArray::<T>::copy(self);
+        res -= rhs;
+        return res;
+    }
+}
+
+
+impl<'a, 'b, 'c, T : Clone + Display + From<f32>, R : NDData<T> + Sized> Sub<&'a R> for &'b NDSliceMut<'c, T> where NDArray<T> : Blas<T> {
+    type Output = NDArray<T>;
+
+    fn sub(self, rhs: &'a R) -> NDArray<T> {
+        let mut res = NDArray::<T>::copy(self);
+        res -= rhs;
+        return res;
     }
 }
 
@@ -310,17 +375,16 @@ impl<'b, T : Clone + Display + From<f32>, R : NDData<T> + Sized> SubAssign<R> fo
 ==================== MulAssign ====================
 */
 
-impl<T : Clone + Display + From<f32>, I : NDData<T> + Sized> MulAssign<I> for NDArray<T> where NDArray<T> : Blas<T> + NDData<T> {
+impl<'a, T : Clone + Display + From<f32>, I : NDData<T> + Sized> MulAssign<&'a I> for NDArray<T> where NDArray<T> : Blas<T> + NDData<T> {
 
-    #[inline(always)]
-    fn mul_assign(&mut self, rhs: I) {
+    fn mul_assign(&mut self, rhs: &'a I) {
         if self.dim() == 1 && rhs.dim() == 2 {
             let x = NDArray::<T>::copy(self);
-            self.gemv(T::from(1.0), &rhs, &x, T::from(0.0));
+            self.gemv(T::from(1.0), rhs, &x, T::from(0.0));
         }
         else if self.dim() == 2 && rhs.dim() == 2 {
             let a = NDArray::<T>::copy(self);
-            self.gemm(T::from(1.0), &a, &rhs, T::from(0.0));
+            self.gemm(T::from(1.0), &a, rhs, T::from(0.0));
         }
         else {
             panic!("MulAssign could not find a blas operation between NDData of dimension {} and {}", self.dim(), rhs.dim());
@@ -328,20 +392,52 @@ impl<T : Clone + Display + From<f32>, I : NDData<T> + Sized> MulAssign<I> for ND
     }
 }
 
-impl<'a, T : Clone + Display + From<f32>, I : NDData<T> + Sized> MulAssign<I> for NDSliceMut<'a, T> where NDSliceMut<'a, T> : Blas<T> + NDData<T> {
+impl<'a, 'b, T : Clone + Display + From<f32>, I : NDData<T> + Sized> MulAssign<&'b I> for NDSliceMut<'a, T> where NDSliceMut<'a, T> : Blas<T> + NDData<T> {
 
-    #[inline(always)]
-    fn mul_assign(&mut self, rhs: I) {
+    fn mul_assign(&mut self, rhs: &'b I) {
         if self.dim() == 1 && rhs.dim() == 2 {
             let x = NDArray::<T>::copy(self);
-            self.gemv(T::from(1.0), &rhs, &x, T::from(0.0));
+            self.gemv(T::from(1.0), rhs, &x, T::from(0.0));
         }
         else if self.dim() == 2 && rhs.dim() == 2 {
             let a = NDArray::<T>::copy(self);
-            self.gemm(T::from(1.0), &a, &rhs, T::from(0.0));
+            self.gemm(T::from(1.0), &a, rhs, T::from(0.0));
         }
         else {
             panic!("MulAssign could not find a blas operation between NDData of dimension {} and {}", self.dim(), rhs.dim());
         }
+    }
+}
+
+/*
+==================== Mul ====================
+*/
+
+impl<'a, 'b, T : Clone + Display + From<f32>, R : NDData<T> + Sized> Mul<&'a R> for &'b NDArray<T> where NDArray<T> : Blas<T> {
+    type Output = NDArray<T>;
+
+    fn mul(self, rhs: &'a R) -> NDArray<T> {
+        let mut res = NDArray::<T>::copy(self);
+        res *= rhs;
+        return res;
+    }
+}
+
+impl<'a, 'b, 'c, T : Clone + Display + From<f32>, R : NDData<T> + Sized> Mul<&'a R> for &'b NDSlice<'c, T> where NDArray<T> : Blas<T> {
+    type Output = NDArray<T>;
+
+    fn mul(self, rhs: &'a R) -> NDArray<T> {
+        let mut res = NDArray::<T>::copy(self);
+        res *= rhs;
+        return res;
+    }
+}
+impl<'a, 'b, 'c, T : Clone + Display + From<f32>, R : NDData<T> + Sized> Mul<&'a R> for &'b NDSliceMut<'c, T> where NDArray<T> : Blas<T> {
+    type Output = NDArray<T>;
+
+    fn mul(self, rhs: &'a R) -> NDArray<T> {
+        let mut res = NDArray::<T>::copy(self);
+        res *= rhs;
+        return res;
     }
 }

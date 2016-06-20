@@ -252,11 +252,13 @@ fn ops_overloading() {
     let matrix1 = NDArray::<f64>::from_slice(&[3,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0]);
     let mut matrix2 = NDArray::<f64>::copy(&matrix1);
     matrix2.transpose();
-    matrix2 *= matrix1;
-    array1 += array3;
+    let matrix3 = &matrix2 * &matrix1;
+    array1 += &array3;
     assert!(array1 == NDArray::<f64>::from_slice(&[3], &[7.0, 14.0, 21.0]));
-    array1 -= array2;
+    array1 -= &array2;
     assert!(array1 == NDArray::<f64>::from_slice(&[3], &[4.0, 8.0, 12.0]));
-    array1 *= matrix2;
+    array1 *= &matrix3;
     assert!(array1 == NDArray::<f64>::from_slice(&[3], &[28.0, 32.0, 36.0]));
+    let array4 = &array1 + &array2;
+    assert!(array4 == NDArray::<f64>::from_slice(&[3], &[31.0, 38.0, 45.0]));
 }

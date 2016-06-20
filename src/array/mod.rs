@@ -3,8 +3,11 @@ use std::iter::repeat;
 use std::fmt::Display;
 use std::ops::{Index, IndexMut};
 
+/// N-dimensional indexing functionality.
 pub mod ndindex;
+/// CSV file support for loading and saving 1D and 2D arrays.
 pub mod csv;
+/// Numpy file support for loading and saving N-dimensional arrays.
 pub mod numpy;
 
 use array::ndindex::NDIndex;
@@ -45,7 +48,7 @@ pub trait NDData<T> {
     }
 }
 
-/// A trait for struture giving mutable access to a N-dimensional array of type T
+/// A trait for struture giving mutable access to a N-dimensional array of type T.
 pub trait NDDataMut<T : Clone + Display> : NDData<T> {
 
     /// Return the underlying storage array as a mutable slice.

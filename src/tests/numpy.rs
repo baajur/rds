@@ -74,7 +74,7 @@ fn write() {
                     }
                 }
             }
-            numpyfile.write_array(&array).unwrap();
+            numpyfile.write_data(&array).unwrap();
         }
     }
     assert!(Command::new("python").arg("test_vector/numpy/verify.py").arg(TMP_DIR).status().unwrap().success());
