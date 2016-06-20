@@ -690,14 +690,20 @@
 <span id="646">646</span>
 <span id="647">647</span>
 <span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cmp</span>::{<span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>::<span class='ident'>repeat</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>::<span class='ident'>Display</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Index</span>, <span class='ident'>IndexMut</span>};
 
+<span class='doccomment'>/// N-dimensional indexing functionality.</span>
 <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>ndindex</span>;
+<span class='doccomment'>/// CSV file support for loading and saving 1D and 2D arrays.</span>
 <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>csv</span>;
+<span class='doccomment'>/// Numpy file support for loading and saving N-dimensional arrays.</span>
 <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>numpy</span>;
 
 <span class='kw'>use</span> <span class='ident'>array</span>::<span class='ident'>ndindex</span>::<span class='ident'>NDIndex</span>;
@@ -738,7 +744,7 @@
     }
 }
 
-<span class='doccomment'>/// A trait for struture giving mutable access to a N-dimensional array of type T</span>
+<span class='doccomment'>/// A trait for struture giving mutable access to a N-dimensional array of type T.</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>NDDataMut</span><span class='op'>&lt;</span><span class='ident'>T</span> : <span class='ident'>Clone</span> <span class='op'>+</span> <span class='ident'>Display</span><span class='op'>&gt;</span> : <span class='ident'>NDData</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> {
 
     <span class='doccomment'>/// Return the underlying storage array as a mutable slice.</span>

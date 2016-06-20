@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["array",""],["blas",""]]});
+initSidebarItems({"mod":[["array","Module containing N-dimensional array storage, manipulation and file format support."],["blas","Module containing Blas bindings and overloaded operation for `NDData`."]]});

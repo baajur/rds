@@ -258,7 +258,6 @@
 <span id="214">214</span>
 <span id="215">215</span>
 <span id="216">216</span>
-<span id="217">217</span>
 </pre><pre class='rust '>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>csv</span>;
 
@@ -269,7 +268,6 @@
 <span class='comment'>//use std::marker::Sized;</span>
 <span class='comment'>//use std::ops::Index;</span>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>str</span>::<span class='ident'>FromStr</span>;
-
 <span class='kw'>use</span> <span class='ident'>array</span>::{<span class='ident'>NDArray</span>, <span class='ident'>NDData</span>};
 
 <span class='doccomment'>/// Structure representing a Comma Separated Value file.</span>
@@ -401,7 +399,7 @@
 
     <span class='doccomment'>/// Open the CSV file for reading and read the whole file as a two dimensional array.</span>
     <span class='doccomment'>/// In case of failure, returns the error as a string.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>read_2darray</span><span class='op'>&lt;</span><span class='ident'>T</span> : <span class='ident'>FromStr</span> <span class='op'>+</span> <span class='ident'>Clone</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>NDArray</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>, <span class='ident'>String</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>read_array</span><span class='op'>&lt;</span><span class='ident'>T</span> : <span class='ident'>FromStr</span> <span class='op'>+</span> <span class='ident'>Clone</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>NDArray</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>, <span class='ident'>String</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>data</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>::<span class='ident'>new</span>();
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>shape</span> <span class='op'>=</span> [<span class='number'>0usize</span>;<span class='number'>2</span>];
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>reader</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>get_reader</span>() {

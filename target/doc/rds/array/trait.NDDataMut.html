@@ -47,14 +47,14 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-550' class='srclink' href='../../src/rds/src/array/mod.rs.html#49-107' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-548' class='srclink' href='../../src/rds/src/array/mod.rs.html#52-110' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait NDDataMut&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html' title='core::fmt::Display'>Display</a>&gt;: <a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt; {
     fn <a href='#tymethod.get_data_mut' class='fnname'>get_data_mut</a>(&amp;mut self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;mut [</a>T<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>;
 
     fn <a href='#method.idx_mut' class='fnname'>idx_mut</a>&lt;'a&gt;(&amp;'a mut self, idx: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; &amp;'a mut T { ... }
     fn <a href='#method.transpose' class='fnname'>transpose</a>(&amp;mut self) { ... }
     fn <a href='#method.assign' class='fnname'>assign</a>(&amp;mut self, other: &amp;<a class='trait' href='../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt;) { ... }
-}</pre><div class='docblock'><p>A trait for struture giving mutable access to a N-dimensional array of type T</p>
+}</pre><div class='docblock'><p>A trait for struture giving mutable access to a N-dimensional array of type T.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>

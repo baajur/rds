@@ -47,7 +47,7 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-75' class='srclink' href='../../../src/rds/src/array/csv.rs.html#14-24' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-75' class='srclink' href='../../../src/rds/src/array/csv.rs.html#13-23' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct CSVFile {
     pub header: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
     pub flexible: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
@@ -75,7 +75,7 @@ In case of failure, returns the error as a string.</p>
 <div class='docblock'><p>Open the CSV file for reading and read the column at column_idx (index starting at 0) as a
 one dimensional array.
 In case of failure, returns the error as a string.</p>
-</div><h4 id='method.read_2darray' class='method'><code>fn <a href='#method.read_2darray' class='fnname'>read_2darray</a>&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/str/trait.FromStr.html' title='core::str::FromStr'>FromStr</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt;(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../../../rds/array/struct.NDArray.html' title='rds::array::NDArray'>NDArray</a>&lt;T&gt;, <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;</code></h4>
+</div><h4 id='method.read_array' class='method'><code>fn <a href='#method.read_array' class='fnname'>read_array</a>&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/str/trait.FromStr.html' title='core::str::FromStr'>FromStr</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt;(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../../../rds/array/struct.NDArray.html' title='rds::array::NDArray'>NDArray</a>&lt;T&gt;, <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;</code></h4>
 <div class='docblock'><p>Open the CSV file for reading and read the whole file as a two dimensional array.
 In case of failure, returns the error as a string.</p>
 </div><h4 id='method.write_data' class='method'><code>fn <a href='#method.write_data' class='fnname'>write_data</a>&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html' title='core::fmt::Display'>Display</a>&gt;(&amp;mut self, data: &amp;<a class='trait' href='../../../rds/array/trait.NDData.html' title='rds::array::NDData'>NDData</a>&lt;T&gt;) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;</code></h4>
