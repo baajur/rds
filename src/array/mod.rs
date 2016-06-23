@@ -198,6 +198,16 @@ impl<T : Clone> NDArray<T> {
             data : data.to_vec().into_boxed_slice(),
         }
     }
+    
+    /// Allocate a new array where each element has been casted from data.
+    pub fn cast<U : Clone>(data : &NDData<U>) -> NDArray<T> where T : From<U> {
+        let alloc : Vec<T> = data.get_data().iter().map(|x| T::from(x.clone())).collect();
+        NDArray {
+            shape : data.shape().to_vec(),
+            strides : data.strides().to_vec(),
+            data : alloc.into_boxed_slice()
+        }
+    }
 
     /// Reshape an NDArray. The size of the new shape (product of all its elements) must be equal 
     /// to the size of the current shape.
