@@ -1,7 +1,10 @@
 use std::cmp::{Eq,PartialEq};
 use std::f32;
 use std::f64;
+use std::fmt;
 use std::ops::{Add,AddAssign,Div,DivAssign,Mul,MulAssign,Neg,Sub,SubAssign};
+use std::num::ParseFloatError;
+use std::str::FromStr;
 
 pub trait Complex<T> where Self : Sized + Copy {
 
@@ -172,6 +175,60 @@ impl PartialEq<c32> for c32 {
 impl Eq for c32 {
 }
 
+impl FromStr for c32 {
+    type Err = ParseFloatError;
+
+    fn from_str(s: &str) -> Result<c32, Self::Err> {
+        let mut v = c32::new(0.0, 0.0);
+        if s.ends_with('i') || s.ends_with('j') {
+            let imend = s.len()-1;
+            let mut imstart = 0usize;
+
+            if let Some(p) = s.rfind('-') {
+                if p > 0 {
+                    imstart = p;
+                }
+            }
+            if let Some(p) = s.rfind('+') {
+                if p > 0 {
+                    imstart = p;
+                }
+            }
+
+            if imstart > 0 {
+                v.re = match f32::from_str(&s[0..imstart]) {
+                    Ok(re) => re,
+                    Err(e) => {
+                        return Err(e);
+                    }
+                };
+            }
+            v.im = match f32::from_str(&s[imstart..imend]) {
+                Ok(im) => im,
+                Err(e) => {
+                    return Err(e);
+                }
+            };
+        }
+        // No imaginary part
+        else {
+            v.re = match f32::from_str(s) {
+                Ok(re) => re,
+                Err(e) => {
+                    return Err(e);
+                }
+            };
+        }
+        return Ok(v);
+    }
+}
+
+impl fmt::Display for c32 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}{:+}j", self.re, self.im)
+    }
+}
+
 // ==================== c64 ====================
 
 impl c64 {
@@ -304,4 +361,56 @@ impl PartialEq<c64> for c64 {
 impl Eq for c64 {
 }
 
+impl FromStr for c64 {
+    type Err = ParseFloatError;
 
+    fn from_str(s: &str) -> Result<c64, Self::Err> {
+        let mut v = c64::new(0.0, 0.0);
+        if s.ends_with('i') || s.ends_with('j') {
+            let imend = s.len()-1;
+            let mut imstart = 0usize;
+
+            if let Some(p) = s.rfind('-') {
+                if p > 0 {
+                    imstart = p;
+                }
+            }
+            if let Some(p) = s.rfind('+') {
+                if p > 0 {
+                    imstart = p;
+                }
+            }
+
+            if imstart > 0 {
+                v.re = match f64::from_str(&s[0..imstart]) {
+                    Ok(re) => re,
+                    Err(e) => {
+                        return Err(e);
+                    }
+                };
+            }
+            v.im = match f64::from_str(&s[imstart..imend]) {
+                Ok(im) => im,
+                Err(e) => {
+                    return Err(e);
+                }
+            };
+        }
+        // No imaginary part
+        else {
+            v.re = match f64::from_str(s) {
+                Ok(re) => re,
+                Err(e) => {
+                    return Err(e);
+                }
+            };
+        }
+        return Ok(v);
+    }
+}
+
+impl fmt::Display for c64 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}{:+}j", self.re, self.im)
+    }
+}

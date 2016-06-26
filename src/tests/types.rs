@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use types::cast::Cast;
 use types::complex::{c32,c64,Complex};
 
@@ -49,4 +51,40 @@ fn cast() {
     assert!(Cast::<f64>::cast(a) == 1f64);
     assert!(Cast::<c32>::cast(a) == c32::cartesian(1.0, 2.0));
     assert!(Cast::<c64>::cast(a) == c64::cartesian(1.0, 2.0));
+}
+
+#[test]
+fn fromstr_c32() {
+    assert_eq!(c32::from_str("1.0"),         Ok(c32::cartesian(1.0, 0.0)));
+    assert_eq!(c32::from_str("1.0i"),        Ok(c32::cartesian(0.0, 1.0)));
+    assert_eq!(c32::from_str("1.0j"),        Ok(c32::cartesian(0.0, 1.0)));
+    assert_eq!(c32::from_str("1.0+1.0j"),    Ok(c32::cartesian(1.0, 1.0)));
+    assert_eq!(c32::from_str("-1.0+1.0j"),   Ok(c32::cartesian(-1.0, 1.0)));
+    assert_eq!(c32::from_str("+1.0-1.0j"),    Ok(c32::cartesian(1.0, -1.0)));
+    assert_eq!(c32::from_str("-1.0-1.0j"),   Ok(c32::cartesian(-1.0, -1.0)));
+}
+
+#[test]
+fn fromstr_c64() {
+    assert_eq!(c64::from_str("1.0"),         Ok(c64::cartesian(1.0, 0.0)));
+    assert_eq!(c64::from_str("1.0i"),        Ok(c64::cartesian(0.0, 1.0)));
+    assert_eq!(c64::from_str("1.0j"),        Ok(c64::cartesian(0.0, 1.0)));
+    assert_eq!(c64::from_str("1.0+1.0j"),    Ok(c64::cartesian(1.0, 1.0)));
+    assert_eq!(c64::from_str("-1.0+1.0j"),   Ok(c64::cartesian(-1.0, 1.0)));
+    assert_eq!(c64::from_str("+1.0-1.0j"),    Ok(c64::cartesian(1.0, -1.0)));
+    assert_eq!(c64::from_str("-1.0-1.0j"),   Ok(c64::cartesian(-1.0, -1.0)));
+}
+
+#[test]
+fn display_c32() {
+    assert_eq!(c32::from_str(&format!("{}", c32::cartesian(1.0, 0.0))[..]), Ok(c32::cartesian(1.0, 0.0)));
+    assert_eq!(c32::from_str(&format!("{}", c32::cartesian(1.0, 1.0))[..]), Ok(c32::cartesian(1.0, 1.0)));
+    assert_eq!(c32::from_str(&format!("{}", c32::cartesian(-1.0, -1.0))[..]), Ok(c32::cartesian(-1.0, -1.0)));
+}
+
+#[test]
+fn display_c64() {
+    assert_eq!(c64::from_str(&format!("{}", c64::cartesian(1.0, 0.0))[..]), Ok(c64::cartesian(1.0, 0.0)));
+    assert_eq!(c64::from_str(&format!("{}", c64::cartesian(1.0, 1.0))[..]), Ok(c64::cartesian(1.0, 1.0)));
+    assert_eq!(c64::from_str(&format!("{}", c64::cartesian(-1.0, -1.0))[..]), Ok(c64::cartesian(-1.0, -1.0)));
 }
