@@ -1,3 +1,5 @@
+pub mod types;
+
 /// Module containing N-dimensional array storage, manipulation and file format support.
 /// 
 /// # Introduction

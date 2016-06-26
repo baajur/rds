@@ -1,3 +1,4 @@
+pub mod types;
 pub mod array;
 pub mod csv;
 pub mod numpy;
