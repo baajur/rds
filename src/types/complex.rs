@@ -29,21 +29,21 @@ pub trait Complex<T> where Self : Sized + Copy {
 #[repr(C)]
 #[derive(Clone,Copy,Debug)]
 pub struct c32 {
-    re : f32,
-    im : f32
+    pub re : f32,
+    pub im : f32
 }
 
 #[repr(C)]
 #[derive(Clone,Copy,Debug)]
 pub struct c64 {
-    re : f64,
-    im : f64
+    pub re : f64,
+    pub im : f64
 }
 
 // ==================== c32 ====================
 
 impl c32 {
-    fn new(re : f32, im : f32) -> c32 {
+    pub fn new(re : f32, im : f32) -> c32 {
         c32 {
             re : re,
             im : im,
@@ -175,7 +175,7 @@ impl Eq for c32 {
 // ==================== c64 ====================
 
 impl c64 {
-    fn new(re : f64, im : f64) -> c64 {
+    pub fn new(re : f64, im : f64) -> c64 {
         c64 {
             re : re,
             im : im,
