@@ -18,13 +18,13 @@ fn read() {
             assert!(array.dim() <= 3);
             if array.dim() == 1 {
                 for i in 0..array.shape()[0] {
-                    assert!(array[&[i]] == (i*3) as f32);
+                    assert_eq!(array[&[i]], (i*3) as f32);
                 }
             }
             if array.dim() == 2 {
                 for i in 0..array.shape()[0] {
                     for j in 0..array.shape()[1] {
-                        assert!(array[&[i,j]] == (i*3 + j*5) as f32);
+                        assert_eq!(array[&[i,j]], (i*3 + j*5) as f32);
                     }
                 }
             }
@@ -32,7 +32,7 @@ fn read() {
                 for i in 0..array.shape()[0] {
                     for j in 0..array.shape()[1] {
                         for k in 0..array.shape()[2] {
-                            assert!(array[&[i,j,k]] == (i*3 + j*5 + k*7) as f32);
+                            assert_eq!(array[&[i,j,k]], (i*3 + j*5 + k*7) as f32);
                         }
                     }
                 }
@@ -55,13 +55,13 @@ fn write() {
             assert!(array.dim() <= 3);
             if array.dim() == 1 {
                 for i in 0..array.shape()[0] {
-                    assert!(array[&[i]] == (i*3) as f32);
+                    assert_eq!(array[&[i]], (i*3) as f32);
                 }
             }
             if array.dim() == 2 {
                 for i in 0..array.shape()[0] {
                     for j in 0..array.shape()[1] {
-                        assert!(array[&[i,j]] == (i*3 + j*5) as f32);
+                        assert_eq!(array[&[i,j]], (i*3 + j*5) as f32);
                     }
                 }
             }
@@ -69,7 +69,7 @@ fn write() {
                 for i in 0..array.shape()[0] {
                     for j in 0..array.shape()[1] {
                         for k in 0..array.shape()[2] {
-                            assert!(array[&[i,j,k]] == (i*3 + j*5 + k*7) as f32);
+                            assert_eq!(array[&[i,j,k]], (i*3 + j*5 + k*7) as f32);
                         }
                     }
                 }

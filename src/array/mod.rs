@@ -11,6 +11,7 @@ pub mod csv;
 pub mod numpy;
 
 use array::ndindex::NDIndex;
+use types::cast::Cast;
 
 /// A trait for struture giving immutable access to a N-dimensional array of type T
 pub trait NDData<T> {
@@ -200,8 +201,8 @@ impl<T : Clone> NDArray<T> {
     }
     
     /// Allocate a new array where each element has been casted from data.
-    pub fn cast<U : Clone>(data : &NDData<U>) -> NDArray<T> where T : From<U> {
-        let alloc : Vec<T> = data.get_data().iter().map(|x| T::from(x.clone())).collect();
+    pub fn cast<U : Copy>(data : &NDData<U>) -> NDArray<T> where T : Copy, U : Cast<T> {
+        let alloc : Vec<T> = data.get_data().iter().map(|x| Cast::<T>::cast(x.clone())).collect();
         NDArray {
             shape : data.shape().to_vec(),
             strides : data.strides().to_vec(),

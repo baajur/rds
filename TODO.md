@@ -10,11 +10,6 @@ array::csv
 * Array iterator for CSV file
 * read_row_iterator and write_row_iterator
 
-array::numpy
-============
-
-* Complex types
-
 array::edf
 ==========
 

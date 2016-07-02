@@ -1,4 +1,3 @@
-extern crate num;
 extern crate byteorder;
 
 use std::error::Error;
@@ -8,27 +7,15 @@ use std::io::{Read,Write};
 use std::iter::repeat;
 use std::str::FromStr;
 
-use self::num::{FromPrimitive, ToPrimitive};
 use self::byteorder::{ByteOrder, BigEndian, LittleEndian, ReadBytesExt, WriteBytesExt};
 
+use types::{RDSType, RDSTyped};
+use types::complex::{c32, c64};
+use types::cast::Cast;
 use array::{NDArray, NDData};
 use array::ndindex::NDIndex;
 
 const NUMPY_MAGIC : [u8;6] = [0x93u8, b'N', b'U', b'M', b'P', b'Y'];
-
-/// Enumeration representing the supported numpy dtypes.
-pub enum DType {
-    U8,
-    U16,
-    U32,
-    U64,
-    I8,
-    I16,
-    I32,
-    I64,
-    F32,
-    F64,
-}
 
 /// Enumeration representing the storage order.
 pub enum Order {
@@ -46,7 +33,7 @@ pub enum Endianess {
 pub struct NumpyFile {
     path : String,
     shape : Vec<usize>,
-    pub dtype : DType,
+    pub dtype : RDSType,
     pub order : Order,
     pub endianess : Endianess,
 }
@@ -63,212 +50,192 @@ fn extract_in_between(source : &str, start : &str, end : &str) -> Option<String>
     return Some(source[idx1..idx2].to_string());
 }
 
-fn read_to_u8<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+fn read_from_u8<T : Copy>(reader : &mut File) -> Result<T, String> where u8 : Cast<T> {
     match reader.read_u8() { 
-        Ok(v) => match T::from_u8(v) {
-            Some(c) => Ok(c),
-            None => return Err(format!("Failed to convert value from u8 to T"))
-        },
-        Err(e) => return Err(e.description().to_string())
+        Ok(v) => Ok(Cast::<T>::cast(v)),
+        Err(e) => Err(e.description().to_string())
     }
 }
 
-fn read_to_u16<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+fn read_from_u16<T : Copy, B : ByteOrder>(reader : &mut File) -> Result<T, String> where u16 : Cast<T> {
     match reader.read_u16::<B>() { 
-        Ok(v) => match T::from_u16(v) {
-            Some(c) => Ok(c),
-            None => return Err(format!("Failed to convert value from u16 to T"))
-        },
-        Err(e) => return Err(e.description().to_string())
+        Ok(v) => Ok(Cast::<T>::cast(v)),
+        Err(e) => Err(e.description().to_string())
     }
 }
 
-fn read_to_u32<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+fn read_from_u32<T : Copy, B : ByteOrder>(reader : &mut File) -> Result<T, String> where u32 : Cast<T> {
     match reader.read_u32::<B>() { 
-        Ok(v) => match T::from_u32(v) {
-            Some(c) => Ok(c),
-            None => return Err(format!("Failed to convert value from u32 to T"))
-        },
-        Err(e) => return Err(e.description().to_string())
+        Ok(v) => Ok(Cast::<T>::cast(v)),
+        Err(e) => Err(e.description().to_string())
     }
 }
 
-fn read_to_u64<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+fn read_from_u64<T : Copy, B : ByteOrder>(reader : &mut File) -> Result<T, String> where u64 : Cast<T> {
     match reader.read_u64::<B>() { 
-        Ok(v) => match T::from_u64(v) {
-            Some(c) => Ok(c),
-            None => return Err(format!("Failed to convert value from u64 to T"))
-        },
-        Err(e) => return Err(e.description().to_string())
+        Ok(v) => Ok(Cast::<T>::cast(v)),
+        Err(e) => Err(e.description().to_string())
     }
 }
 
-fn read_to_i8<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+fn read_from_i8<T : Copy>(reader : &mut File) -> Result<T, String> where i8 : Cast<T> {
     match reader.read_i8() { 
-        Ok(v) => match T::from_i8(v) {
-            Some(c) => Ok(c),
-            None => return Err(format!("Failed to convert value from i8 to T"))
-        },
-        Err(e) => return Err(e.description().to_string())
+        Ok(v) => Ok(Cast::<T>::cast(v)),
+        Err(e) => Err(e.description().to_string())
     }
 }
 
-fn read_to_i16<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+fn read_from_i16<T : Copy, B : ByteOrder>(reader : &mut File) -> Result<T, String> where i16 : Cast<T> {
     match reader.read_i16::<B>() { 
-        Ok(v) => match T::from_i16(v) {
-            Some(c) => Ok(c),
-            None => return Err(format!("Failed to convert value from i16 to T"))
-        },
-        Err(e) => return Err(e.description().to_string())
+        Ok(v) => Ok(Cast::<T>::cast(v)),
+        Err(e) => Err(e.description().to_string())
     }
 }
 
-fn read_to_i32<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+fn read_from_i32<T : Copy, B : ByteOrder>(reader : &mut File) -> Result<T, String> where i32 : Cast<T> {
     match reader.read_i32::<B>() { 
-        Ok(v) => match T::from_i32(v) {
-            Some(c) => Ok(c),
-            None => return Err(format!("Failed to convert value from i32 to T"))
-        },
-        Err(e) => return Err(e.description().to_string())
+        Ok(v) => Ok(Cast::<T>::cast(v)),
+        Err(e) => Err(e.description().to_string())
     }
 }
 
-fn read_to_i64<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+fn read_from_i64<T : Copy, B : ByteOrder>(reader : &mut File) -> Result<T, String> where i64 : Cast<T> {
     match reader.read_i64::<B>() { 
-        Ok(v) => match T::from_i64(v) {
-            Some(c) => Ok(c),
-            None => return Err(format!("Failed to convert value from i64 to T"))
-        },
-        Err(e) => return Err(e.description().to_string())
+        Ok(v) => Ok(Cast::<T>::cast(v)),
+        Err(e) => Err(e.description().to_string())
     }
 }
 
-fn read_to_f32<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+fn read_from_f32<T : Copy, B : ByteOrder>(reader : &mut File) -> Result<T, String> where f32 : Cast<T> {
     match reader.read_f32::<B>() { 
-        Ok(v) => match T::from_f32(v) {
-            Some(c) => Ok(c),
-            None => return Err(format!("Failed to convert value from f32 to T"))
-        },
-        Err(e) => return Err(e.description().to_string())
+        Ok(v) => Ok(Cast::<T>::cast(v)),
+        Err(e) => Err(e.description().to_string())
     }
 }
 
-fn read_to_f64<T : FromPrimitive, B : ByteOrder>(reader : &mut File) -> Result<T, String> {
+fn read_from_f64<T : Copy, B : ByteOrder>(reader : &mut File) -> Result<T, String> where f64 : Cast<T> {
     match reader.read_f64::<B>() { 
-        Ok(v) => match T::from_f64(v) {
-            Some(c) => Ok(c),
-            None => return Err(format!("Failed to convert value from f64 to T"))
+        Ok(v) => Ok(Cast::<T>::cast(v)),
+        Err(e) => Err(e.description().to_string())
+    }
+}
+
+fn read_from_c32<T : Copy, B : ByteOrder>(reader : &mut File) -> Result<T, String> where c32 : Cast<T> {
+    match reader.read_f32::<B>() { 
+        Ok(r) => {
+            match reader.read_f32::<B>() { 
+                Ok(i) => Ok(Cast::<T>::cast(c32::new(r,i))),
+                Err(e) => Err(e.description().to_string())
+            }
+        },
+        Err(e) => Err(e.description().to_string())
+    }
+}
+
+fn read_from_c64<T : Copy, B : ByteOrder>(reader : &mut File) -> Result<T, String> where c64 : Cast<T> {
+    match reader.read_f64::<B>() { 
+        Ok(r) => {
+            match reader.read_f64::<B>() { 
+                Ok(i) => Ok(Cast::<T>::cast(c64::new(r,i))),
+                Err(e) => Err(e.description().to_string())
+            }
+        },
+        Err(e) => Err(e.description().to_string())
+    }
+}
+
+fn write_to_u8<T : Copy + RDSTyped>(writer : &mut File, v : T) -> Result<(), String> {
+    match writer.write_u8(Cast::<u8>::cast(v)) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_u16<T : Copy + RDSTyped, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    match writer.write_u16::<B>(Cast::<u16>::cast(v)) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_u32<T : Copy + RDSTyped, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    match writer.write_u32::<B>(Cast::<u32>::cast(v)) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_u64<T : Copy + RDSTyped, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    match writer.write_u64::<B>(Cast::<u64>::cast(v)) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_i8<T : Copy + RDSTyped>(writer : &mut File, v : T) -> Result<(), String> {
+    match writer.write_i8(Cast::<i8>::cast(v)) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_i16<T : Copy + RDSTyped, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    match writer.write_i16::<B>(Cast::<i16>::cast(v)) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_i32<T : Copy + RDSTyped, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    match writer.write_i32::<B>(Cast::<i32>::cast(v)) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_i64<T : Copy + RDSTyped, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    match writer.write_i64::<B>(Cast::<i64>::cast(v)) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_f32<T : Copy + RDSTyped, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    match writer.write_f32::<B>(Cast::<f32>::cast(v)) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_f64<T : Copy + RDSTyped, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    match writer.write_f64::<B>(Cast::<f64>::cast(v)) {
+        Ok(()) => return Ok(()),
+        Err(e) => return Err(e.description().to_string())
+    }
+}
+
+fn write_to_c32<T : Copy + RDSTyped, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    let c = Cast::<c32>::cast(v);
+    match writer.write_f32::<B>(c.re) {
+        Ok(()) => {
+            match writer.write_f32::<B>(c.im) {
+                Ok(()) => return Ok(()),
+                Err(e) => return Err(e.description().to_string())
+            }
         },
         Err(e) => return Err(e.description().to_string())
     }
 }
 
-fn write_to_u8<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
-    let c = match T::to_u8(&v) {
-        Some(c) => c,
-        None => return Err(format!("Failed to convert value from T to u8"))
-    };
-    match writer.write_u8(c) {
-        Ok(()) => return Ok(()),
-        Err(e) => return Err(e.description().to_string())
-    }
-}
-
-fn write_to_u16<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
-    let c = match T::to_u16(&v) {
-        Some(c) => c,
-        None => return Err(format!("Failed to convert value from T to u16"))
-    };
-    match writer.write_u16::<B>(c) {
-        Ok(()) => return Ok(()),
-        Err(e) => return Err(e.description().to_string())
-    }
-}
-
-fn write_to_u32<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
-    let c = match T::to_u32(&v) {
-        Some(c) => c,
-        None => return Err(format!("Failed to convert value from T to u32"))
-    };
-    match writer.write_u32::<B>(c) {
-        Ok(()) => return Ok(()),
-        Err(e) => return Err(e.description().to_string())
-    }
-}
-
-fn write_to_u64<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
-    let c = match T::to_u64(&v) {
-        Some(c) => c,
-        None => return Err(format!("Failed to convert value from T to u64"))
-    };
-    match writer.write_u64::<B>(c) {
-        Ok(()) => return Ok(()),
-        Err(e) => return Err(e.description().to_string())
-    }
-}
-
-fn write_to_i8<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
-    let c = match T::to_i8(&v) {
-        Some(c) => c,
-        None => return Err(format!("Failed to convert value from T to i8"))
-    };
-    match writer.write_i8(c) {
-        Ok(()) => return Ok(()),
-        Err(e) => return Err(e.description().to_string())
-    }
-}
-
-fn write_to_i16<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
-    let c = match T::to_i16(&v) {
-        Some(c) => c,
-        None => return Err(format!("Failed to convert value from T to i16"))
-    };
-    match writer.write_i16::<B>(c) {
-        Ok(()) => return Ok(()),
-        Err(e) => return Err(e.description().to_string())
-    }
-}
-
-fn write_to_i32<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
-    let c = match T::to_i32(&v) {
-        Some(c) => c,
-        None => return Err(format!("Failed to convert value from T to i32"))
-    };
-    match writer.write_i32::<B>(c) {
-        Ok(()) => return Ok(()),
-        Err(e) => return Err(e.description().to_string())
-    }
-}
-
-fn write_to_i64<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
-    let c = match T::to_i64(&v) {
-        Some(c) => c,
-        None => return Err(format!("Failed to convert value from T to i64"))
-    };
-    match writer.write_i64::<B>(c) {
-        Ok(()) => return Ok(()),
-        Err(e) => return Err(e.description().to_string())
-    }
-}
-
-fn write_to_f32<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
-    let c = match T::to_f32(&v) {
-        Some(c) => c,
-        None => return Err(format!("Failed to convert value from T to f32"))
-    };
-    match writer.write_f32::<B>(c) {
-        Ok(()) => return Ok(()),
-        Err(e) => return Err(e.description().to_string())
-    }
-}
-
-fn write_to_f64<T : ToPrimitive, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
-    let c = match T::to_f64(&v) {
-        Some(c) => c,
-        None => return Err(format!("Failed to convert value from T to f64"))
-    };
-    match writer.write_f64::<B>(c) {
-        Ok(()) => return Ok(()),
+fn write_to_c64<T : Copy + RDSTyped, B : ByteOrder>(writer : &mut File, v : T) -> Result<(), String> {
+    let c = Cast::<c64>::cast(v);
+    match writer.write_f64::<B>(c.re) {
+        Ok(()) => {
+            match writer.write_f64::<B>(c.im) {
+                Ok(()) => return Ok(()),
+                Err(e) => return Err(e.description().to_string())
+            }
+        },
         Err(e) => return Err(e.description().to_string())
     }
 }
@@ -281,7 +248,7 @@ impl NumpyFile {
         NumpyFile {
             path : path.to_string(),
             shape : Vec::new(),
-            dtype : DType::F32,
+            dtype : RDSType::F32,
             order : Order::RowMajor,
             endianess : Endianess::LittleEndian,
         }
@@ -373,16 +340,18 @@ impl NumpyFile {
         };
 
         self.dtype = match &descr[1..] {
-            "u1" => DType::U8,
-            "u2" => DType::U16,
-            "u4" => DType::U32,
-            "u8" => DType::U64,
-            "i1" => DType::I8,
-            "i2" => DType::I16,
-            "i4" => DType::I32,
-            "i8" => DType::I64,
-            "f4" => DType::F32,
-            "f8" => DType::F64,
+            "u1" => RDSType::U8,
+            "u2" => RDSType::U16,
+            "u4" => RDSType::U32,
+            "u8" => RDSType::U64,
+            "i1" => RDSType::I8,
+            "i2" => RDSType::I16,
+            "i4" => RDSType::I32,
+            "i8" => RDSType::I64,
+            "f4" => RDSType::F32,
+            "f8" => RDSType::F64,
+            "c8" => RDSType::C32,
+            "c16" => RDSType::C64,
             _ => return Err(format!("Unsuported descr type: {}", descr))
         };
         
@@ -425,16 +394,18 @@ impl NumpyFile {
         );
         header.extend_from_slice(
             match self.dtype {
-                DType::U8  => "u1".as_bytes(),
-                DType::U16 => "u2".as_bytes(),
-                DType::U32 => "u4".as_bytes(),
-                DType::U64 => "u8".as_bytes(),
-                DType::I8  => "i1".as_bytes(),
-                DType::I16 => "i2".as_bytes(),
-                DType::I32 => "i4".as_bytes(),
-                DType::I64 => "i8".as_bytes(),
-                DType::F32 => "f4".as_bytes(),
-                DType::F64 => "f8".as_bytes(),
+                RDSType::U8  => "u1".as_bytes(),
+                RDSType::U16 => "u2".as_bytes(),
+                RDSType::U32 => "u4".as_bytes(),
+                RDSType::U64 => "u8".as_bytes(),
+                RDSType::I8  => "i1".as_bytes(),
+                RDSType::I16 => "i2".as_bytes(),
+                RDSType::I32 => "i4".as_bytes(),
+                RDSType::I64 => "i8".as_bytes(),
+                RDSType::F32 => "f4".as_bytes(),
+                RDSType::F64 => "f8".as_bytes(),
+                RDSType::C32 => "c8".as_bytes(),
+                RDSType::C64 => "c16".as_bytes(),
            }
         );
         header.extend_from_slice("', 'fortran_order': ".as_bytes());
@@ -467,7 +438,10 @@ impl NumpyFile {
     /// Open the Numpy file for reading and read the entire numpy array as a NDArray<T>. This 
     /// function operates its own type convertion from the dtype to the type T.
     /// In case of failure, returns the error as a string.
-    pub fn read_array<T : Clone + FromPrimitive + Display>(&mut self) -> Result<NDArray<T>, String>  {
+    pub fn read_array<T : Copy + RDSTyped + Display>(&mut self) -> Result<NDArray<T>, String>
+        where u8 : Cast<T>, u16 : Cast<T>, u32 : Cast<T>, u64 : Cast<T>, 
+              i8 : Cast<T>, i16 : Cast<T>, i32 : Cast<T>, i64 : Cast<T>, 
+              f32 : Cast<T>, f64 : Cast<T>, c32 : Cast<T>, c64 : Cast<T> {
         let mut reader = match self.get_reader() {
             Ok(r) => r,
             Err(e) => return Err(e)
@@ -477,69 +451,71 @@ impl NumpyFile {
         }
 
         let readchain = match self.dtype {
-            DType::U8 => {
+            RDSType::U8 => read_from_u8::<T>,
+            RDSType::U16 => {
                 match self.endianess {
-                    Endianess::BigEndian    => read_to_u8::<T, BigEndian>,
-                    Endianess::LittleEndian => read_to_u8::<T, LittleEndian>,
+                    Endianess::BigEndian    => read_from_u16::<T, BigEndian>,
+                    Endianess::LittleEndian => read_from_u16::<T, LittleEndian>,
                 }
             },
-            DType::U16 => {
+            RDSType::U32 => {
                 match self.endianess {
-                    Endianess::BigEndian    => read_to_u16::<T, BigEndian>,
-                    Endianess::LittleEndian => read_to_u16::<T, LittleEndian>,
+                    Endianess::BigEndian    => read_from_u32::<T, BigEndian>,
+                    Endianess::LittleEndian => read_from_u32::<T, LittleEndian>,
                 }
             },
-            DType::U32 => {
+            RDSType::U64 => {
                 match self.endianess {
-                    Endianess::BigEndian    => read_to_u32::<T, BigEndian>,
-                    Endianess::LittleEndian => read_to_u32::<T, LittleEndian>,
+                    Endianess::BigEndian    => read_from_u64::<T, BigEndian>,
+                    Endianess::LittleEndian => read_from_u64::<T, LittleEndian>,
                 }
             },
-            DType::U64 => {
+            RDSType::I8 => read_from_i8::<T>,
+            RDSType::I16 => {
                 match self.endianess {
-                    Endianess::BigEndian    => read_to_u64::<T, BigEndian>,
-                    Endianess::LittleEndian => read_to_u64::<T, LittleEndian>,
+                    Endianess::BigEndian    => read_from_i16::<T, BigEndian>,
+                    Endianess::LittleEndian => read_from_i16::<T, LittleEndian>,
                 }
             },
-            DType::I8 => {
+            RDSType::I32 => {
                 match self.endianess {
-                    Endianess::BigEndian    => read_to_i8::<T, BigEndian>,
-                    Endianess::LittleEndian => read_to_i8::<T, LittleEndian>,
+                    Endianess::BigEndian    => read_from_i32::<T, BigEndian>,
+                    Endianess::LittleEndian => read_from_i32::<T, LittleEndian>,
                 }
             },
-            DType::I16 => {
+            RDSType::I64 => {
                 match self.endianess {
-                    Endianess::BigEndian    => read_to_i16::<T, BigEndian>,
-                    Endianess::LittleEndian => read_to_i16::<T, LittleEndian>,
+                    Endianess::BigEndian    => read_from_i64::<T, BigEndian>,
+                    Endianess::LittleEndian => read_from_i64::<T, LittleEndian>,
                 }
             },
-            DType::I32 => {
+            RDSType::F32 => {
                 match self.endianess {
-                    Endianess::BigEndian    => read_to_i32::<T, BigEndian>,
-                    Endianess::LittleEndian => read_to_i32::<T, LittleEndian>,
+                    Endianess::BigEndian    => read_from_f32::<T, BigEndian>,
+                    Endianess::LittleEndian => read_from_f32::<T, LittleEndian>,
                 }
             },
-            DType::I64 => {
+            RDSType::F64 => {
                 match self.endianess {
-                    Endianess::BigEndian    => read_to_i64::<T, BigEndian>,
-                    Endianess::LittleEndian => read_to_i64::<T, LittleEndian>,
+                    Endianess::BigEndian    => read_from_f64::<T, BigEndian>,
+                    Endianess::LittleEndian => read_from_f64::<T, LittleEndian>,
                 }
             },
-            DType::F32 => {
+            RDSType::C32 => {
                 match self.endianess {
-                    Endianess::BigEndian    => read_to_f32::<T, BigEndian>,
-                    Endianess::LittleEndian => read_to_f32::<T, LittleEndian>,
+                    Endianess::BigEndian    => read_from_c32::<T, BigEndian>,
+                    Endianess::LittleEndian => read_from_c32::<T, LittleEndian>,
                 }
             },
-            DType::F64 => {
+            RDSType::C64 => {
                 match self.endianess {
-                    Endianess::BigEndian    => read_to_f64::<T, BigEndian>,
-                    Endianess::LittleEndian => read_to_f64::<T, LittleEndian>,
+                    Endianess::BigEndian    => read_from_c64::<T, BigEndian>,
+                    Endianess::LittleEndian => read_from_c64::<T, LittleEndian>,
                 }
             },
         };
 
-        let mut array = NDArray::<T>::new(&self.shape, T::from_u8(0).unwrap());
+        let mut array = NDArray::<T>::new(&self.shape, Cast::<T>::cast(0u8));
         let mut idx : Vec<usize> = repeat(0usize).take(self.shape.len()).collect();
 
         loop {
@@ -567,7 +543,7 @@ impl NumpyFile {
     /// function operates its own type convertion from the type T to the dtype. It is thus 
     /// important to specify the desired dtype in the NumpyFile structure.
     /// In case of failure, returns the error as a string.
-    pub fn write_data<T : Clone + ToPrimitive + Display>(&mut self, array : &NDData<T>) -> Result<(), String>  {
+    pub fn write_data<T : Copy + RDSTyped + Display>(&mut self, array : &NDData<T>) -> Result<(), String>  {
         let mut writer = match self.get_writer() {
             Ok(w) => w,
             Err(e) => return Err(e)
@@ -578,64 +554,66 @@ impl NumpyFile {
         }
 
         let writechain = match self.dtype {
-            DType::U8 => {
-                match self.endianess {
-                    Endianess::BigEndian    => write_to_u8::<T, BigEndian>,
-                    Endianess::LittleEndian => write_to_u8::<T, LittleEndian>,
-                }
-            },
-            DType::U16 => {
+            RDSType::U8 => write_to_u8::<T>,
+            RDSType::U16 => {
                 match self.endianess {
                     Endianess::BigEndian    => write_to_u16::<T, BigEndian>,
                     Endianess::LittleEndian => write_to_u16::<T, LittleEndian>,
                 }
             },
-            DType::U32 => {
+            RDSType::U32 => {
                 match self.endianess {
                     Endianess::BigEndian    => write_to_u32::<T, BigEndian>,
                     Endianess::LittleEndian => write_to_u32::<T, LittleEndian>,
                 }
             },
-            DType::U64 => {
+            RDSType::U64 => {
                 match self.endianess {
                     Endianess::BigEndian    => write_to_u64::<T, BigEndian>,
                     Endianess::LittleEndian => write_to_u64::<T, LittleEndian>,
                 }
             },
-            DType::I8 => {
-                match self.endianess {
-                    Endianess::BigEndian    => write_to_i8::<T, BigEndian>,
-                    Endianess::LittleEndian => write_to_i8::<T, LittleEndian>,
-                }
-            },
-            DType::I16 => {
+            RDSType::I8 => write_to_i8::<T>,
+            RDSType::I16 => {
                 match self.endianess {
                     Endianess::BigEndian    => write_to_i16::<T, BigEndian>,
                     Endianess::LittleEndian => write_to_i16::<T, LittleEndian>,
                 }
             },
-            DType::I32 => {
+            RDSType::I32 => {
                 match self.endianess {
                     Endianess::BigEndian    => write_to_i32::<T, BigEndian>,
                     Endianess::LittleEndian => write_to_i32::<T, LittleEndian>,
                 }
             },
-            DType::I64 => {
+            RDSType::I64 => {
                 match self.endianess {
                     Endianess::BigEndian    => write_to_i64::<T, BigEndian>,
                     Endianess::LittleEndian => write_to_i64::<T, LittleEndian>,
                 }
             },
-            DType::F32 => {
+            RDSType::F32 => {
                 match self.endianess {
                     Endianess::BigEndian    => write_to_f32::<T, BigEndian>,
                     Endianess::LittleEndian => write_to_f32::<T, LittleEndian>,
                 }
             },
-            DType::F64 => {
+            RDSType::F64 => {
                 match self.endianess {
                     Endianess::BigEndian    => write_to_f64::<T, BigEndian>,
                     Endianess::LittleEndian => write_to_f64::<T, LittleEndian>,
+                }
+            },
+            RDSType::C32 => {
+                match self.endianess {
+                    Endianess::BigEndian    => write_to_c32::<T, BigEndian>,
+                    Endianess::LittleEndian => write_to_c32::<T, LittleEndian>,
+                }
+            },
+            RDSType::C64 => {
+                match self.endianess {
+                    Endianess::BigEndian    => write_to_c64::<T, BigEndian>,
+                    Endianess::LittleEndian => write_to_c64::<T, LittleEndian>,
                 }
             },
         };

@@ -1,10 +1,7 @@
-extern crate num_complex;
-
 use std::f32;
 use std::f64;
 
-use self::num_complex::{Complex32,Complex64};
-
+use types::complex::{c32, c64};
 use array::{NDDataMut, NDArray};
 use blas::Blas;
 
@@ -25,19 +22,19 @@ fn asum_f64() {
 }
 
 #[test]
-fn asum_complex32() {
-    let array1 = NDArray::<Complex32>::new(&[5], Complex32::new(0.0, 1.0));
-    assert!(array1.asum() == Complex32::new(5.0, 0.0));
-    let array2 = NDArray::<Complex32>::new(&[5, 5], Complex32::new(0.0, 1.0));
-    assert!(array2.asum() == Complex32::new(25.0, 0.0));
+fn asum_c32() {
+    let array1 = NDArray::<c32>::new(&[5], c32::new(0.0, 1.0));
+    assert!(array1.asum() == c32::new(5.0, 0.0));
+    let array2 = NDArray::<c32>::new(&[5, 5], c32::new(0.0, 1.0));
+    assert!(array2.asum() == c32::new(25.0, 0.0));
 }
 
 #[test]
-fn asum_complex64() {
-    let array1 = NDArray::<Complex64>::new(&[5], Complex64::new(0.0, 1.0));
-    assert!(array1.asum() == Complex64::new(5.0, 0.0));
-    let array2 = NDArray::<Complex64>::new(&[5, 5], Complex64::new(0.0, 1.0));
-    assert!(array2.asum() == Complex64::new(25.0, 0.0));
+fn asum_c64() {
+    let array1 = NDArray::<c64>::new(&[5], c64::new(0.0, 1.0));
+    assert!(array1.asum() == c64::new(5.0, 0.0));
+    let array2 = NDArray::<c64>::new(&[5, 5], c64::new(0.0, 1.0));
+    assert!(array2.asum() == c64::new(25.0, 0.0));
 }
 
 #[test]
@@ -57,19 +54,19 @@ fn nrm2_f64() {
 }
 
 #[test]
-fn nrm2_complex32() {
-    let array1 = NDArray::<Complex32>::new(&[5], Complex32::new(0.0, 1.0));
-    assert!(array1.nrm2() == Complex32::new(5.0f32.sqrt(), 0.0));
-    let array2 = NDArray::<Complex32>::new(&[5, 5], Complex32::new(0.0, 1.0));
-    assert!(array2.nrm2() == Complex32::new(25.0f32.sqrt(), 0.0));
+fn nrm2_c32() {
+    let array1 = NDArray::<c32>::new(&[5], c32::new(0.0, 1.0));
+    assert!(array1.nrm2() == c32::new(5.0f32.sqrt(), 0.0));
+    let array2 = NDArray::<c32>::new(&[5, 5], c32::new(0.0, 1.0));
+    assert!(array2.nrm2() == c32::new(25.0f32.sqrt(), 0.0));
 }
 
 #[test]
-fn nrm2_complex64() {
-    let array1 = NDArray::<Complex64>::new(&[5], Complex64::new(0.0, 1.0));
-    assert!(array1.nrm2() == Complex64::new(5.0f64.sqrt(), 0.0));
-    let array2 = NDArray::<Complex64>::new(&[5, 5], Complex64::new(0.0, 1.0));
-    assert!(array2.nrm2() == Complex64::new(25.0f64.sqrt(), 0.0));
+fn nrm2_c64() {
+    let array1 = NDArray::<c64>::new(&[5], c64::new(0.0, 1.0));
+    assert!(array1.nrm2() == c64::new(5.0f64.sqrt(), 0.0));
+    let array2 = NDArray::<c64>::new(&[5, 5], c64::new(0.0, 1.0));
+    assert!(array2.nrm2() == c64::new(25.0f64.sqrt(), 0.0));
 }
 
 #[test]
@@ -123,51 +120,51 @@ fn scal_f64() {
 }
 
 #[test]
-fn scal_complex32() {
-    let mut array1 = NDArray::<Complex32>::new(&[5], Complex32::new(0.0,0.0));
+fn scal_c32() {
+    let mut array1 = NDArray::<c32>::new(&[5], c32::new(0.0,0.0));
     for i in 0..5 {
-        array1[&[i]] = Complex32::new(0.0, (i * 3) as f32);
+        array1[&[i]] = c32::new(0.0, (i * 3) as f32);
     }
-    array1.scal(Complex32::new(0.0, 2.0));
+    array1.scal(c32::new(0.0, 2.0));
     for i in 0..5 {
-        assert!(array1[&[i]] == Complex32::new((i as f32) * -6.0, 0.0));
+        assert!(array1[&[i]] == c32::new((i as f32) * -6.0, 0.0));
     }
 
-    let mut array2 = NDArray::<Complex32>::new(&[5, 5], Complex32::new(0.0,0.0));
+    let mut array2 = NDArray::<c32>::new(&[5, 5], c32::new(0.0,0.0));
     for i in 0..5 {
         for j in 0..5 {
-            array2[&[i,j]] = Complex32::new(0.0, (i * 3 + j * 5) as f32);
+            array2[&[i,j]] = c32::new(0.0, (i * 3 + j * 5) as f32);
         }
     }
-    array2.scal(Complex32::new(0.0, 2.0));
+    array2.scal(c32::new(0.0, 2.0));
     for i in 0..5 {
         for j in 0..5 {
-            assert!(array2[&[i,j]] == Complex32::new((i as f32) * -6.0 + (j as f32) * -10.0, 0.0));
+            assert!(array2[&[i,j]] == c32::new((i as f32) * -6.0 + (j as f32) * -10.0, 0.0));
         }
     }
 }
 
 #[test]
-fn scal_complex64() {
-    let mut array1 = NDArray::<Complex64>::new(&[5], Complex64::new(0.0,0.0));
+fn scal_c64() {
+    let mut array1 = NDArray::<c64>::new(&[5], c64::new(0.0,0.0));
     for i in 0..5 {
-        array1[&[i]] = Complex64::new(0.0, (i * 3) as f64);
+        array1[&[i]] = c64::new(0.0, (i * 3) as f64);
     }
-    array1.scal(Complex64::new(0.0, 2.0));
+    array1.scal(c64::new(0.0, 2.0));
     for i in 0..5 {
-        assert!(array1[&[i]] == Complex64::new((i as f64) * -6.0, 0.0));
+        assert!(array1[&[i]] == c64::new((i as f64) * -6.0, 0.0));
     }
 
-    let mut array2 = NDArray::<Complex64>::new(&[5, 5], Complex64::new(0.0,0.0));
+    let mut array2 = NDArray::<c64>::new(&[5, 5], c64::new(0.0,0.0));
     for i in 0..5 {
         for j in 0..5 {
-            array2[&[i,j]] = Complex64::new(0.0, (i * 3 + j * 5) as f64);
+            array2[&[i,j]] = c64::new(0.0, (i * 3 + j * 5) as f64);
         }
     }
-    array2.scal(Complex64::new(0.0, 2.0));
+    array2.scal(c64::new(0.0, 2.0));
     for i in 0..5 {
         for j in 0..5 {
-            assert!(array2[&[i,j]] == Complex64::new((i as f64) * -6.0 + (j as f64) * -10.0, 0.0));
+            assert!(array2[&[i,j]] == c64::new((i as f64) * -6.0 + (j as f64) * -10.0, 0.0));
         }
     }
 }
@@ -231,59 +228,59 @@ fn axpy_f64() {
 }
 
 #[test]
-fn axpy_complex32() {
-    let mut array1 = NDArray::<Complex32>::new(&[5], Complex32::new(0.0,0.0));
-    let mut array2 = NDArray::<Complex32>::new(&[5], Complex32::new(0.0,0.0));
+fn axpy_c32() {
+    let mut array1 = NDArray::<c32>::new(&[5], c32::new(0.0,0.0));
+    let mut array2 = NDArray::<c32>::new(&[5], c32::new(0.0,0.0));
     for i in 0..5 {
-        array1[&[i]] = Complex32::new(0.0, (i * 3) as f32);
-        array2[&[i]] = Complex32::new(0.0, (i * 5) as f32);
+        array1[&[i]] = c32::new(0.0, (i * 3) as f32);
+        array2[&[i]] = c32::new(0.0, (i * 5) as f32);
     }
-    array1.axpy(Complex32::new(0.0, 2.0), &array2);
+    array1.axpy(c32::new(0.0, 2.0), &array2);
     for i in 0..5 {
-        assert!(array1[&[i]] == Complex32::new((i as f32) * -10.0, (i as f32) * 3.0));
+        assert!(array1[&[i]] == c32::new((i as f32) * -10.0, (i as f32) * 3.0));
     }
 
-    let mut array3 = NDArray::<Complex32>::new(&[5, 5], Complex32::new(0.0,0.0));
-    let mut array4 = NDArray::<Complex32>::new(&[5, 5], Complex32::new(0.0,0.0));
+    let mut array3 = NDArray::<c32>::new(&[5, 5], c32::new(0.0,0.0));
+    let mut array4 = NDArray::<c32>::new(&[5, 5], c32::new(0.0,0.0));
     for i in 0..5 {
         for j in 0..5 {
-            array3[&[i,j]] = Complex32::new(0.0, (i * 3 + j * 5) as f32);
-            array4[&[i,j]] = Complex32::new(0.0, (i * 7 + j * 9) as f32);
+            array3[&[i,j]] = c32::new(0.0, (i * 3 + j * 5) as f32);
+            array4[&[i,j]] = c32::new(0.0, (i * 7 + j * 9) as f32);
         }
     }
-    array3.axpy(Complex32::new(0.0, 2.0), &array4);
+    array3.axpy(c32::new(0.0, 2.0), &array4);
     for i in 0..5 {
         for j in 0..5 {
-            assert!(array3[&[i,j]] == Complex32::new((i as f32) * -14.0 + (j as f32) * -18.0, (i * 3 + j * 5) as f32));
+            assert!(array3[&[i,j]] == c32::new((i as f32) * -14.0 + (j as f32) * -18.0, (i * 3 + j * 5) as f32));
         }
     }
 }
 
 #[test]
-fn axpy_complex64() {
-    let mut array1 = NDArray::<Complex64>::new(&[5], Complex64::new(0.0,0.0));
-    let mut array2 = NDArray::<Complex64>::new(&[5], Complex64::new(0.0,0.0));
+fn axpy_c64() {
+    let mut array1 = NDArray::<c64>::new(&[5], c64::new(0.0,0.0));
+    let mut array2 = NDArray::<c64>::new(&[5], c64::new(0.0,0.0));
     for i in 0..5 {
-        array1[&[i]] = Complex64::new(0.0, (i * 3) as f64);
-        array2[&[i]] = Complex64::new(0.0, (i * 5) as f64);
+        array1[&[i]] = c64::new(0.0, (i * 3) as f64);
+        array2[&[i]] = c64::new(0.0, (i * 5) as f64);
     }
-    array1.axpy(Complex64::new(0.0, 2.0), &array2);
+    array1.axpy(c64::new(0.0, 2.0), &array2);
     for i in 0..5 {
-        assert!(array1[&[i]] == Complex64::new((i as f64) * -10.0, (i as f64) * 3.0));
+        assert!(array1[&[i]] == c64::new((i as f64) * -10.0, (i as f64) * 3.0));
     }
 
-    let mut array3 = NDArray::<Complex64>::new(&[5, 5], Complex64::new(0.0,0.0));
-    let mut array4 = NDArray::<Complex64>::new(&[5, 5], Complex64::new(0.0,0.0));
+    let mut array3 = NDArray::<c64>::new(&[5, 5], c64::new(0.0,0.0));
+    let mut array4 = NDArray::<c64>::new(&[5, 5], c64::new(0.0,0.0));
     for i in 0..5 {
         for j in 0..5 {
-            array3[&[i,j]] = Complex64::new(0.0, (i * 3 + j * 5) as f64);
-            array4[&[i,j]] = Complex64::new(0.0, (i * 7 + j * 9) as f64);
+            array3[&[i,j]] = c64::new(0.0, (i * 3 + j * 5) as f64);
+            array4[&[i,j]] = c64::new(0.0, (i * 7 + j * 9) as f64);
         }
     }
-    array3.axpy(Complex64::new(0.0, 2.0), &array4);
+    array3.axpy(c64::new(0.0, 2.0), &array4);
     for i in 0..5 {
         for j in 0..5 {
-            assert!(array3[&[i,j]] == Complex64::new((i as f64) * -14.0 + (j as f64) * -18.0, (i * 3 + j * 5) as f64));
+            assert!(array3[&[i,j]] == c64::new((i as f64) * -14.0 + (j as f64) * -18.0, (i * 3 + j * 5) as f64));
         }
     }
 }
@@ -320,25 +317,25 @@ fn dot_f64() {
 
 
 #[test]
-fn dot_complex32() {
-    let mut array1 = NDArray::<Complex32>::new(&[3], Complex32::new(0.0,0.0));
-    let mut array2 = NDArray::<Complex32>::new(&[3], Complex32::new(0.0,0.0));
+fn dot_c32() {
+    let mut array1 = NDArray::<c32>::new(&[3], c32::new(0.0,0.0));
+    let mut array2 = NDArray::<c32>::new(&[3], c32::new(0.0,0.0));
     for i in 0..3 {
         array1[&[i]].im = (i * 3) as f32;
         array2[&[i]].im = (i * 5) as f32;
     }
-    assert!(array1.dot(&array2) == Complex32::new(-15.0 - 60.0, 0.0));
+    assert!(array1.dot(&array2) == c32::new(-15.0 - 60.0, 0.0));
 }
 
 #[test]
-fn dot_complex64() {
-    let mut array1 = NDArray::<Complex64>::new(&[3], Complex64::new(0.0,0.0));
-    let mut array2 = NDArray::<Complex64>::new(&[3], Complex64::new(0.0,0.0));
+fn dot_c64() {
+    let mut array1 = NDArray::<c64>::new(&[3], c64::new(0.0,0.0));
+    let mut array2 = NDArray::<c64>::new(&[3], c64::new(0.0,0.0));
     for i in 0..3 {
         array1[&[i]].im = (i * 3) as f64;
         array2[&[i]].im = (i * 5) as f64;
     }
-    assert!(array1.dot(&array2) == Complex64::new(-15.0 - 60.0, 0.0));
+    assert!(array1.dot(&array2) == c64::new(-15.0 - 60.0, 0.0));
 }
 
 #[test]
@@ -376,29 +373,29 @@ fn gemv_f64() {
 }
 
 #[test]
-fn gemv_complex32() {
-    let vector1 = NDArray::<Complex32>::cast(&NDArray::<f32>::from_slice(&[3], &[1.0, 2.0, 3.0]));
-    let mut vector2 = NDArray::<Complex32>::cast(&NDArray::<f32>::from_slice(&[4], &[1.5, 2.5, 3.5, 4.5]));
-    let mut matrix = NDArray::<Complex32>::cast(&NDArray::<f32>::from_slice(&[4,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0]));
-    vector2.gemv(Complex32::new(1.0, 0.0), &matrix, &vector1, Complex32::new(2.0, 0.0));
-    assert!(vector2 == NDArray::<Complex32>::cast(&NDArray::<f32>::from_slice(&[4], &[6.0, 10.0, 11.0, 15.0])));
+fn gemv_c32() {
+    let vector1 = NDArray::<c32>::cast(&NDArray::<f32>::from_slice(&[3], &[1.0, 2.0, 3.0]));
+    let mut vector2 = NDArray::<c32>::cast(&NDArray::<f32>::from_slice(&[4], &[1.5, 2.5, 3.5, 4.5]));
+    let mut matrix = NDArray::<c32>::cast(&NDArray::<f32>::from_slice(&[4,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0]));
+    vector2.gemv(c32::new(1.0, 0.0), &matrix, &vector1, c32::new(2.0, 0.0));
+    assert!(vector2 == NDArray::<c32>::cast(&NDArray::<f32>::from_slice(&[4], &[6.0, 10.0, 11.0, 15.0])));
     // Auto transpose
     matrix.transpose();
-    vector2.gemv(Complex32::new(1.0, 0.0), &matrix, &vector1, Complex32::new(2.0, 0.0));
-    assert!(vector2 == NDArray::<Complex32>::cast(&NDArray::<f32>::from_slice(&[4], &[15.0, 25.0, 26.0, 36.0])));
+    vector2.gemv(c32::new(1.0, 0.0), &matrix, &vector1, c32::new(2.0, 0.0));
+    assert!(vector2 == NDArray::<c32>::cast(&NDArray::<f32>::from_slice(&[4], &[15.0, 25.0, 26.0, 36.0])));
 }
 
 #[test]
-fn gemv_complex64() {
-    let vector1 = NDArray::<Complex64>::cast(&NDArray::<f64>::from_slice(&[3], &[1.0, 2.0, 3.0]));
-    let mut vector2 = NDArray::<Complex64>::cast(&NDArray::<f64>::from_slice(&[4], &[1.5, 2.5, 3.5, 4.5]));
-    let mut matrix = NDArray::<Complex64>::cast(&NDArray::<f64>::from_slice(&[4,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0]));
-    vector2.gemv(Complex64::new(1.0, 0.0), &matrix, &vector1, Complex64::new(2.0, 0.0));
-    assert!(vector2 == NDArray::<Complex64>::cast(&NDArray::<f64>::from_slice(&[4], &[6.0, 10.0, 11.0, 15.0])));
+fn gemv_c64() {
+    let vector1 = NDArray::<c64>::cast(&NDArray::<f64>::from_slice(&[3], &[1.0, 2.0, 3.0]));
+    let mut vector2 = NDArray::<c64>::cast(&NDArray::<f64>::from_slice(&[4], &[1.5, 2.5, 3.5, 4.5]));
+    let mut matrix = NDArray::<c64>::cast(&NDArray::<f64>::from_slice(&[4,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0]));
+    vector2.gemv(c64::new(1.0, 0.0), &matrix, &vector1, c64::new(2.0, 0.0));
+    assert!(vector2 == NDArray::<c64>::cast(&NDArray::<f64>::from_slice(&[4], &[6.0, 10.0, 11.0, 15.0])));
     // Auto transpose
     matrix.transpose();
-    vector2.gemv(Complex64::new(1.0, 0.0), &matrix, &vector1, Complex64::new(2.0, 0.0));
-    assert!(vector2 == NDArray::<Complex64>::cast(&NDArray::<f64>::from_slice(&[4], &[15.0, 25.0, 26.0, 36.0])));
+    vector2.gemv(c64::new(1.0, 0.0), &matrix, &vector1, c64::new(2.0, 0.0));
+    assert!(vector2 == NDArray::<c64>::cast(&NDArray::<f64>::from_slice(&[4], &[15.0, 25.0, 26.0, 36.0])));
 }
 
 #[test]
@@ -455,47 +452,47 @@ fn gemm_f64() {
 }
 
 #[test]
-fn gemm_complex32() {
-    let mut matrixa = NDArray::<Complex32>::cast(&NDArray::<f32>::from_slice(&[4,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0]));
-    let mut matrixb = NDArray::<Complex32>::cast(&NDArray::<f32>::from_slice(&[3,2], &[1.0, 2.0, 2.0, 1.0, 1.0, -1.0]));
-    let mut matrixc = NDArray::<Complex32>::cast(&NDArray::<f32>::from_slice(&[4,2], &[0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5]));
-    matrixc.gemm(Complex32::new(1.0, 0.0), &matrixa, &matrixb, Complex32::new(0.5, 0.0));
-    assert!(matrixc == NDArray::<Complex32>::cast(&NDArray::<f32>::from_slice(&[4,2], &[3.25, 2.75, 2.75, 0.25, 2.25, 0.75, 3.75, 2.25])));
+fn gemm_c32() {
+    let mut matrixa = NDArray::<c32>::cast(&NDArray::<f32>::from_slice(&[4,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0]));
+    let mut matrixb = NDArray::<c32>::cast(&NDArray::<f32>::from_slice(&[3,2], &[1.0, 2.0, 2.0, 1.0, 1.0, -1.0]));
+    let mut matrixc = NDArray::<c32>::cast(&NDArray::<f32>::from_slice(&[4,2], &[0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5]));
+    matrixc.gemm(c32::new(1.0, 0.0), &matrixa, &matrixb, c32::new(0.5, 0.0));
+    assert!(matrixc == NDArray::<c32>::cast(&NDArray::<f32>::from_slice(&[4,2], &[3.25, 2.75, 2.75, 0.25, 2.25, 0.75, 3.75, 2.25])));
     // Auto transpose
     matrixa.transpose();
-    matrixc.gemm(Complex32::new(1.0, 0.0), &matrixa, &matrixb, Complex32::new(1.0, 0.0));
-    assert!(matrixc == NDArray::<Complex32>::cast(&NDArray::<f32>::from_slice(&[4,2], &[6.25, 5.75, 5.75, 0.25, 4.25, 1.75, 7.75, 4.25])));
+    matrixc.gemm(c32::new(1.0, 0.0), &matrixa, &matrixb, c32::new(1.0, 0.0));
+    assert!(matrixc == NDArray::<c32>::cast(&NDArray::<f32>::from_slice(&[4,2], &[6.25, 5.75, 5.75, 0.25, 4.25, 1.75, 7.75, 4.25])));
     // Auto transpose
     matrixa.transpose();
     matrixb.transpose();
-    matrixc.gemm(Complex32::new(1.0, 0.0), &matrixa, &matrixb, Complex32::new(1.0, 0.0));
-    assert!(matrixc == NDArray::<Complex32>::cast(&NDArray::<f32>::from_slice(&[4,2], &[9.25, 8.75, 8.75, 0.25, 6.25, 2.75, 11.75, 6.25])));
+    matrixc.gemm(c32::new(1.0, 0.0), &matrixa, &matrixb, c32::new(1.0, 0.0));
+    assert!(matrixc == NDArray::<c32>::cast(&NDArray::<f32>::from_slice(&[4,2], &[9.25, 8.75, 8.75, 0.25, 6.25, 2.75, 11.75, 6.25])));
     // Auto transpose
     matrixb.transpose();
-    matrixc.gemm(Complex32::new(1.0, 0.0), &matrixa, &matrixb, Complex32::new(1.0, 0.0));
-    assert!(matrixc == NDArray::<Complex32>::cast(&NDArray::<f32>::from_slice(&[4,2], &[12.25, 11.75, 11.75, 0.25, 8.25, 3.75, 15.75, 8.25])));
+    matrixc.gemm(c32::new(1.0, 0.0), &matrixa, &matrixb, c32::new(1.0, 0.0));
+    assert!(matrixc == NDArray::<c32>::cast(&NDArray::<f32>::from_slice(&[4,2], &[12.25, 11.75, 11.75, 0.25, 8.25, 3.75, 15.75, 8.25])));
 }
 
 #[test]
-fn gemm_complex64() {
-    let mut matrixa = NDArray::<Complex64>::cast(&NDArray::<f64>::from_slice(&[4,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0]));
-    let mut matrixb = NDArray::<Complex64>::cast(&NDArray::<f64>::from_slice(&[3,2], &[1.0, 2.0, 2.0, 1.0, 1.0, -1.0]));
-    let mut matrixc = NDArray::<Complex64>::cast(&NDArray::<f64>::from_slice(&[4,2], &[0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5]));
-    matrixc.gemm(Complex64::new(1.0, 0.0), &matrixa, &matrixb, Complex64::new(0.5, 0.0));
-    assert!(matrixc == NDArray::<Complex64>::cast(&NDArray::<f64>::from_slice(&[4,2], &[3.25, 2.75, 2.75, 0.25, 2.25, 0.75, 3.75, 2.25])));
+fn gemm_c64() {
+    let mut matrixa = NDArray::<c64>::cast(&NDArray::<f64>::from_slice(&[4,3], &[1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0]));
+    let mut matrixb = NDArray::<c64>::cast(&NDArray::<f64>::from_slice(&[3,2], &[1.0, 2.0, 2.0, 1.0, 1.0, -1.0]));
+    let mut matrixc = NDArray::<c64>::cast(&NDArray::<f64>::from_slice(&[4,2], &[0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5]));
+    matrixc.gemm(c64::new(1.0, 0.0), &matrixa, &matrixb, c64::new(0.5, 0.0));
+    assert!(matrixc == NDArray::<c64>::cast(&NDArray::<f64>::from_slice(&[4,2], &[3.25, 2.75, 2.75, 0.25, 2.25, 0.75, 3.75, 2.25])));
     // Auto transpose
     matrixa.transpose();
-    matrixc.gemm(Complex64::new(1.0, 0.0), &matrixa, &matrixb, Complex64::new(1.0, 0.0));
-    assert!(matrixc == NDArray::<Complex64>::cast(&NDArray::<f64>::from_slice(&[4,2], &[6.25, 5.75, 5.75, 0.25, 4.25, 1.75, 7.75, 4.25])));
+    matrixc.gemm(c64::new(1.0, 0.0), &matrixa, &matrixb, c64::new(1.0, 0.0));
+    assert!(matrixc == NDArray::<c64>::cast(&NDArray::<f64>::from_slice(&[4,2], &[6.25, 5.75, 5.75, 0.25, 4.25, 1.75, 7.75, 4.25])));
     // Auto transpose
     matrixa.transpose();
     matrixb.transpose();
-    matrixc.gemm(Complex64::new(1.0, 0.0), &matrixa, &matrixb, Complex64::new(1.0, 0.0));
-    assert!(matrixc == NDArray::<Complex64>::cast(&NDArray::<f64>::from_slice(&[4,2], &[9.25, 8.75, 8.75, 0.25, 6.25, 2.75, 11.75, 6.25])));
+    matrixc.gemm(c64::new(1.0, 0.0), &matrixa, &matrixb, c64::new(1.0, 0.0));
+    assert!(matrixc == NDArray::<c64>::cast(&NDArray::<f64>::from_slice(&[4,2], &[9.25, 8.75, 8.75, 0.25, 6.25, 2.75, 11.75, 6.25])));
     // Auto transpose
     matrixb.transpose();
-    matrixc.gemm(Complex64::new(1.0, 0.0), &matrixa, &matrixb, Complex64::new(1.0, 0.0));
-    assert!(matrixc == NDArray::<Complex64>::cast(&NDArray::<f64>::from_slice(&[4,2], &[12.25, 11.75, 11.75, 0.25, 8.25, 3.75, 15.75, 8.25])));
+    matrixc.gemm(c64::new(1.0, 0.0), &matrixa, &matrixb, c64::new(1.0, 0.0));
+    assert!(matrixc == NDArray::<c64>::cast(&NDArray::<f64>::from_slice(&[4,2], &[12.25, 11.75, 11.75, 0.25, 8.25, 3.75, 15.75, 8.25])));
 }
 
 #[test]
