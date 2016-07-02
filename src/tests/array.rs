@@ -246,3 +246,41 @@ fn assignement() {
         }
     }
 }
+
+#[test]
+fn insert() {
+    let mut array1d = NDArray::<f64>::new(&[3], 0.0);
+    let mut array2d = NDArray::<f64>::new(&[3, 3], 0.0);
+    let mut array3d = NDArray::<f64>::new(&[3, 3, 3], 0.0);
+    
+    array1d.insert(0, 1, &NDArray::<f64>::new(&[1], 1.0));
+    assert_eq!(array1d[&[1]], 1.0);
+
+    array2d.insert(0, 1, &NDArray::<f64>::new(&[1, 3], 1.0));
+    for i in 0..3 {
+        assert_eq!(array2d[&[1, i]], 1.0);
+    }
+    array2d.insert(1, 1, &NDArray::<f64>::new(&[4, 1], 1.0));
+    for i in 0..4 {
+        assert_eq!(array2d[&[i, 1]], 1.0);
+    }
+
+    array3d.insert(0, 1, &NDArray::<f64>::new(&[1, 3, 3], 1.0));
+    for i in 0..3 {
+        for j in 0..3 {
+            assert_eq!(array3d[&[1, i, j]], 1.0);
+        }
+    }
+    array3d.insert(1, 1, &NDArray::<f64>::new(&[4, 1, 3], 1.0));
+    for i in 0..4 {
+        for j in 0..3 {
+            assert_eq!(array3d[&[i, 1, j]], 1.0);
+        }
+    }
+    array3d.insert(2, 1, &NDArray::<f64>::new(&[4, 4, 1], 1.0));
+    for i in 0..4 {
+        for j in 0..4 {
+            assert_eq!(array3d[&[i, j, 1]], 1.0);
+        }
+    }
+}

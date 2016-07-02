@@ -14,7 +14,7 @@ use array::ndindex::NDIndex;
 use types::cast::Cast;
 
 /// A trait for struture giving immutable access to a N-dimensional array of type T
-pub trait NDData<T> {
+pub trait NDData<T>{
 
     /// Return a slice of length N where each element is the length of the dimension.
     /// For a 2 dimensional matrix, the first dimension is the number of rows and the second 
@@ -221,6 +221,56 @@ impl<T : Clone> NDArray<T> {
         }
         self.shape = new_shape.to_vec();
         self.strides = NDArray::<T>::compute_strides(&new_shape);
+    }
+
+    pub fn insert(&mut self, dim : usize, pos : usize, other : &NDData<T>) {
+        if dim >= self.dim() {
+            panic!("NDArray::insert(): dim is greater than array dimension ({} >= {})", dim, self.dim());
+        }
+        if pos >= self.shape[dim] {
+            panic!("NDArray::insert(): pos is out of bound ({} >= {})", pos, self.shape[dim]);
+        }
+        if self.dim() != other.dim() {
+            panic!("NDArray::insert(): dimension are differents ({} != {})", other.dim(), self.dim());
+        }
+        for i in 0..self.dim() {
+            if i != dim && self.shape[i] != other.shape()[i] {
+                panic!("NDArray::insert():  Shape are different at dimension {} ({} != {})", i, other.shape()[i], self.shape()[i]);
+            }
+        }
+
+        let old_shape = self.shape.clone();
+        let old_strides = self.strides.clone();
+        let old_data = self.data.clone();
+        self.shape[dim] += other.shape()[dim];
+        self.strides = NDArray::<T>::compute_strides(&self.shape);
+        let mut data : Vec<T> = repeat(old_data[0].clone()).take(self.size()).collect();
+        let mut index : Vec<usize> = repeat(0usize).take(self.dim()).collect();
+
+        loop {
+            if index[dim] < pos {
+                data[index.to_pos(&self.shape, &self.strides)] = old_data[index.to_pos(&old_shape, &old_strides)].clone();
+            }
+            else if index[dim] >= pos && index[dim] < pos + other.shape()[dim] {
+                index[dim] -= pos;
+                let v = other.idx(&index[..]).clone();
+                index[dim] += pos;
+                data[index.to_pos(&self.shape, &self.strides)] = v;
+            }
+            else {
+                index[dim] -= other.shape()[dim];
+                let v = old_data[index.to_pos(&old_shape, &old_strides)].clone();
+                index[dim] += other.shape()[dim];
+                data[index.to_pos(&self.shape, &self.strides)] = v;
+            }
+
+            index.inc_ro(&self.shape);
+            if index.is_zero() {
+                break;
+            }
+        }
+
+        self.data = data.into_boxed_slice();
     }
 }
 
