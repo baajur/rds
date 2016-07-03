@@ -227,8 +227,8 @@ impl<T : Clone> NDArray<T> {
         if dim >= self.dim() {
             panic!("NDArray::insert(): dim is greater than array dimension ({} >= {})", dim, self.dim());
         }
-        if pos >= self.shape[dim] {
-            panic!("NDArray::insert(): pos is out of bound ({} >= {})", pos, self.shape[dim]);
+        if pos > self.shape[dim] {
+            panic!("NDArray::insert(): pos is out of bound ({} > {})", pos, self.shape[dim]);
         }
         if self.dim() != other.dim() {
             panic!("NDArray::insert(): dimensions are differents ({} != {})", other.dim(), self.dim());
@@ -244,24 +244,25 @@ impl<T : Clone> NDArray<T> {
         let old_data = self.data.clone();
         self.shape[dim] += other.shape()[dim];
         self.strides = NDArray::<T>::compute_strides(&self.shape);
-        let mut data : Vec<T> = repeat(old_data[0].clone()).take(self.size()).collect();
+        let alloc : Vec<T> = repeat(old_data[0].clone()).take(self.size()).collect();
+        self.data = alloc.into_boxed_slice();
         let mut index : Vec<usize> = repeat(0usize).take(self.dim()).collect();
 
         loop {
             if index[dim] < pos {
-                data[index.to_pos(&self.shape, &self.strides)] = old_data[index.to_pos(&old_shape, &old_strides)].clone();
+                self.data[index.to_pos(&self.shape, &self.strides)] = old_data[index.to_pos(&old_shape, &old_strides)].clone();
             }
             else if index[dim] >= pos && index[dim] < pos + other.shape()[dim] {
                 index[dim] -= pos;
                 let v = other.idx(&index[..]).clone();
                 index[dim] += pos;
-                data[index.to_pos(&self.shape, &self.strides)] = v;
+                self.data[index.to_pos(&self.shape, &self.strides)] = v;
             }
             else {
                 index[dim] -= other.shape()[dim];
                 let v = old_data[index.to_pos(&old_shape, &old_strides)].clone();
                 index[dim] += other.shape()[dim];
-                data[index.to_pos(&self.shape, &self.strides)] = v;
+                self.data[index.to_pos(&self.shape, &self.strides)] = v;
             }
 
             index.inc_ro(&self.shape);
@@ -269,8 +270,6 @@ impl<T : Clone> NDArray<T> {
                 break;
             }
         }
-
-        self.data = data.into_boxed_slice();
     }
 
     pub fn extract(&self, start : &[usize], end : &[usize]) -> NDArray<T> {
@@ -283,6 +282,9 @@ impl<T : Clone> NDArray<T> {
             }
             if end[i] > self.shape[i] {
                 panic!("NDArray::extract(): end is out of bound at dimension {} ({} > {})", i, end[i], self.shape[i]);
+            }
+            if start[i] >= end[i] {
+                panic!("NDArray::extract(): start is not before end at dimension {} ({} >= {})", i, start[i], end[i]);
             }
         }
 
@@ -311,6 +313,71 @@ impl<T : Clone> NDArray<T> {
             strides : strides,
             data : data.into_boxed_slice()
         };
+    }
+
+    pub fn remove(&mut self, dim : usize, start : usize, end : usize) {
+        if dim >= self.dim() {
+            panic!("NDArray::remove(): dim is greater than array dimension ({} >= {})", dim, self.dim());
+        }
+        if start >= self.shape[dim] || end > self.shape[dim]{
+            panic!("NDArray::remove(): start or end is out of bound ({} >= {} || {} > {})", start, self.shape[dim], end, self.shape[dim]);
+        }
+        if start >= end {
+            panic!("NDArray::remove(): start is not before end ({} >= {})", start, end);
+        }
+
+        let old_shape = self.shape.clone();
+        let old_strides = self.strides.clone();
+        let old_data = self.data.clone();
+        self.shape[dim] -= end - start;
+        self.strides = NDArray::<T>::compute_strides(&self.shape);
+        let alloc : Vec<T> = repeat(old_data[0].clone()).take(self.size()).collect();
+        self.data = alloc.into_boxed_slice();
+        let mut index : Vec<usize> = repeat(0usize).take(self.dim()).collect();
+
+        loop {
+            if index[dim] < start {
+                self.data[index.to_pos(&self.shape, &self.strides)] = old_data[index.to_pos(&old_shape, &old_strides)].clone();
+            }
+            else {
+                index[dim] += end - start;
+                let v = old_data[index.to_pos(&old_shape, &old_strides)].clone();
+                index[dim] -= end - start;
+                self.data[index.to_pos(&self.shape, &self.strides)] = v;
+            }
+
+            index.inc_ro(&self.shape);
+            if index.is_zero() {
+                break;
+            }
+        }
+    }
+
+    pub fn join(&mut self, other :  &NDData<T>) {
+        if self.dim() != other.dim() {
+            panic!("NDArray::join(): the two array are not of the same dimension ({} != {})", self.dim(), other.dim());
+        }
+        for i in 0..self.dim() {
+            if self.shape[i] != other.shape()[i] {
+                let end = self.shape[i];
+                self.insert(i, end, other);
+                return;
+            }
+        }
+        let end = self.shape[0];
+        self.insert(0, end, other);
+    }
+
+    pub fn split(&mut self, dim : usize, pos : usize) -> NDArray<T> {
+        if dim >= self.dim() {
+            panic!("NDArray::split(): dim is greater than array dimension ({} >= {})", dim, self.dim());
+        }
+        let end = self.shape.clone();
+        let mut start : Vec<usize> = repeat(0usize).take(self.dim()).collect();
+        start[dim] = pos;
+        let splitted = self.extract(&start[..], &end[..]);
+        self.remove(dim, start[dim], end[dim]);
+        return splitted;
     }
 }
 

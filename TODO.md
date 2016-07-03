@@ -1,7 +1,6 @@
 array
 =====
 
-* Join, extract, remove, split (extract + remove)
 * Make generic transpose in place
 
 array::csv
