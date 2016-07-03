@@ -284,3 +284,34 @@ fn insert() {
         }
     }
 }
+
+#[test]
+fn extract() {
+    let mut array1d = NDArray::<f64>::new(&[4], 0.0);
+    let mut array2d = NDArray::<f64>::new(&[4, 4], 0.0);
+    let mut array3d = NDArray::<f64>::new(&[4, 4, 4], 0.0);
+
+    for i in 0..4 {
+        array1d[&[i]] = (i * 3) as f64;
+        for j in 0..4 {
+            array2d[&[i, j]] = (i * 3 + j * 5) as f64;
+            for k in 0..4 {
+                array3d[&[i, j, k]] = (i * 3 + j * 5 + k * 7) as f64;
+            }
+        }
+    }
+
+    let extracted1d = array1d.extract(&[1], &[3]);
+    let extracted2d = array2d.extract(&[1,1], &[3,3]);
+    let extracted3d = array3d.extract(&[1,1,1], &[3,3,3]);
+
+    for i in 0..2 {
+        assert_eq!(extracted1d[&[i]], ((i+1) * 3) as f64);
+        for j in 0..2 {
+            assert_eq!(extracted2d[&[i, j]], ((i+1) * 3 + (j+1) * 5) as f64);
+            for k in 0..2 {
+                assert_eq!(extracted3d[&[i, j, k]], ((i+1) * 3 + (j+1) * 5 + (k+1) * 7) as f64);
+            }
+        }
+    }
+}

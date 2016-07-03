@@ -231,11 +231,11 @@ impl<T : Clone> NDArray<T> {
             panic!("NDArray::insert(): pos is out of bound ({} >= {})", pos, self.shape[dim]);
         }
         if self.dim() != other.dim() {
-            panic!("NDArray::insert(): dimension are differents ({} != {})", other.dim(), self.dim());
+            panic!("NDArray::insert(): dimensions are differents ({} != {})", other.dim(), self.dim());
         }
         for i in 0..self.dim() {
             if i != dim && self.shape[i] != other.shape()[i] {
-                panic!("NDArray::insert():  Shape are different at dimension {} ({} != {})", i, other.shape()[i], self.shape()[i]);
+                panic!("NDArray::insert(): Shapes are different at dimension {} ({} != {})", i, other.shape()[i], self.shape()[i]);
             }
         }
 
@@ -271,6 +271,46 @@ impl<T : Clone> NDArray<T> {
         }
 
         self.data = data.into_boxed_slice();
+    }
+
+    pub fn extract(&self, start : &[usize], end : &[usize]) -> NDArray<T> {
+        if self.dim() != start.len() || self.dim() != end.len() {
+            panic!("NDArray::extract(): start or end dimension is not the same as array dimension ({} != {} || {} != {})", start.len(), self.dim(), end.len(), self.dim());
+        }
+        for i in 0..self.dim() {
+            if start[i] >= self.shape[i] {
+                panic!("NDArray::extract(): start is out of bound at dimension {} ({} >= {})", i, start[i], self.shape[i]);
+            }
+            if end[i] > self.shape[i] {
+                panic!("NDArray::extract(): end is out of bound at dimension {} ({} > {})", i, end[i], self.shape[i]);
+            }
+        }
+
+        let mut shape = end.to_vec();
+        for i in 0..shape.len() {
+            shape[i] -= start[i];
+        }
+        let strides = NDArray::<T>::compute_strides(&shape);
+        let mut data : Vec<T> = repeat(self.data[0].clone()).take(shape.iter().fold(1usize, |acc, &x| acc * x)).collect();
+        let mut index : Vec<usize> = repeat(0usize).take(self.dim()).collect();
+        let mut self_index = index.clone();
+
+        loop {
+            for i in 0..shape.len() {
+                self_index[i] = index[i] + start[i];
+            }
+            data[index.to_pos(&shape, &strides)] = self.idx(&self_index).clone();
+            index.inc_ro(&shape);
+            if index.is_zero() {
+                break;
+            }
+        }
+
+        return NDArray::<T> {
+            shape : shape,
+            strides : strides,
+            data : data.into_boxed_slice()
+        };
     }
 }
 
