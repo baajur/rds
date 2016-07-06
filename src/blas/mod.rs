@@ -14,7 +14,6 @@ const CBLAS_NO_TRANS : libc::c_int = 111;
 const CBLAS_TRANS : libc::c_int = 112;
 
 #[link(name = "blas")]
-#[allow(improper_ctypes)] 
 extern {
     fn cblas_sasum (n : isize, x : *const libc::c_float, incx : isize) -> libc::c_float;
     fn cblas_dasum (n : isize, x : *const libc::c_double, incx : isize) -> libc::c_double;

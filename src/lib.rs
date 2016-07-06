@@ -205,5 +205,7 @@ pub mod array;
 /// ```
 pub mod blas;
 
+pub mod backend;
+
 #[cfg(test)]
 mod tests;

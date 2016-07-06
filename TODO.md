@@ -3,12 +3,6 @@ array
 
 * Make generic transpose in place
 
-array::csv
-==========
-
-* Array iterator for CSV file
-* read_row_iterator and write_row_iterator
-
 array::edf
 ==========
 

@@ -4,8 +4,6 @@
 * ~~RDS type system~~
 * ~~Complex types~~
 * ~~Insert, extract, remove, join, split (extract + remove)~~
-* Array iterator for CSV file
-* read_row_iterator and write_row_iterator
 * edf reader
 
 0.0.4
