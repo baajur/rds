@@ -5,8 +5,12 @@ use std::fmt;
 use std::ptr;
 use std::mem::{transmute, size_of};
 
+use backend::compute_backend::{SizedBuffer, SizedBufferMut, ComputeBackend};
+
 pub type CLPlatformId = *const libc::c_void;
 pub type CLDeviceId = *const libc::c_void;
+pub type CLContext = *const libc::c_void;
+pub type CLCommandQueue = *const libc::c_void;
 
 const CL_PLATFORM_PROFILE : u32 = 0x0900u32;
 const CL_PLATFORM_VERSION : u32 = 0x0901u32;
@@ -41,6 +45,10 @@ extern {
     fn clGetPlatformInfo(platform : CLPlatformId, param_name : u32, param_value_size : usize, param_value : *mut libc::c_void, param_value_size_ret : *mut usize) -> i32;
     fn clGetDeviceIDs(platform : CLPlatformId, device_type : u32, num_entries : u32, devices : *mut CLDeviceId, num_devices : *mut u32) -> i32;
     fn clGetDeviceInfo(device : CLDeviceId, param_name : u32, param_value_size : usize, param_value : *mut libc::c_void, param_value_size_ret : *mut usize) -> i32;
+    fn clCreateContext(properties : *const libc::c_void, num_devices : u32, devices : *const CLDeviceId, pfn_notify : *const libc::c_void, user_data : *mut libc::c_void, errcode_ret : *mut i32) -> CLContext;
+    fn clCreateCommandQueue(context : CLContext, device : CLDeviceId, properties : u32, errcode_ret : *mut i32) -> CLCommandQueue;
+    fn clReleaseContext(context : CLContext) -> i32;
+    fn clReleaseCommandQueue(command_queue : CLCommandQueue) -> i32;
 }
 
 pub struct CLPlatform {
@@ -54,6 +62,8 @@ pub struct CLPlatform {
 
 pub struct CLDevice {
     id : CLDeviceId,
+    context : Option<CLContext>,
+    command_queue : Option<CLCommandQueue>,
     name : String,
     vendor : String,
     version : String,
@@ -173,6 +183,8 @@ impl CLDevice {
         let dim = try!(CLDevice::get_uint_info(id, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS));
         Ok(CLDevice {
             id : id,
+            context : None,
+            command_queue : None,
             name : try!(CLDevice::get_string_info(id, CL_DEVICE_NAME)),
             vendor : try!(CLDevice::get_string_info(id, CL_DEVICE_VENDOR)),
             version : try!(CLDevice::get_string_info(id, CL_DEVICE_VERSION)),
@@ -257,6 +269,62 @@ impl fmt::Display for CLDevice {
         try!(write!(f, "\tGlobal memory cache size: {} B\n", self.get_global_mem_cache_size()));
         try!(write!(f, "\tGlobal memory size: {} B\n", self.get_global_mem_size()));
         try!(write!(f, "\tLocal memory size: {} B\n", self.get_local_mem_size()));
+        return Ok(());
+    }
+}
+
+impl ComputeBackend for CLDevice {
+
+    fn init(&mut self) -> Result<(),String> {
+        let mut retcode = CL_SUCCESS;
+
+        let context = unsafe { clCreateContext(ptr::null(), 1, &self.id, ptr::null(), ptr::null_mut(), &mut retcode) };
+        if retcode != CL_SUCCESS {
+            return Err(format!("Failed to initialize OpenCL context for device {}", self.get_name()));
+        }
+        self.context = Some(context);
+
+        let command_queue = unsafe { clCreateCommandQueue(context, self.id, 0, &mut retcode) };
+        if retcode != CL_SUCCESS {
+            return Err(format!("Failed to initialize OpenCL command queue for device {}", self.get_name()));
+        }
+        self.command_queue = Some(command_queue);
+
+        return Ok(());
+    }
+
+    fn create_array() -> u32 {
+        return 0u32;
+    }
+    
+    fn set_array(id : u32, array : &SizedBuffer) {
+    }
+
+    fn get_array(id : u32, array : &mut SizedBufferMut) {
+    }
+
+    fn delete_array(id : u32) {
+    }
+
+    fn finalize(&mut self) -> Result<(),String> {
+        let mut retcode = CL_SUCCESS;
+
+        if let Some(command_queue) = self.command_queue {
+            let retcode = unsafe { clReleaseCommandQueue(command_queue) };
+        }
+        self.command_queue = None;
+        if retcode != CL_SUCCESS {
+            return Err(format!("Failed to release OpenCL command queue for device {}", self.get_name()));
+        }
+
+        if let Some(context) = self.context {
+            let retcode = unsafe { clReleaseContext(context) };
+        }
+        self.context = None;
+        if retcode != CL_SUCCESS {
+            return Err(format!("Failed to release OpenCL context for device {}", self.get_name()));
+        }
+
         return Ok(());
     }
 }
