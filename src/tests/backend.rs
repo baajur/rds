@@ -1,11 +1,12 @@
-use backend::opencl::{OpenCL, CLPlatform};
+use backend;
 
 #[test]
+#[cfg(feature = "opencl")]
 fn opencl_enumerate_devices() {
-    let platforms = OpenCL::get_platform_list().unwrap();
+    let platforms = backend::opencl::OpenCL::get_platform_list().unwrap();
     for platform in platforms {
         println!("{}", platform);
-        let devices = OpenCL::get_device_list(&platform).unwrap();
+        let devices = backend::opencl::OpenCL::get_device_list(&platform).unwrap();
         for device in devices {
             println!("{}", device);
         }
