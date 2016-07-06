@@ -5,12 +5,13 @@ use std::fmt;
 use std::ptr;
 use std::mem::{transmute, size_of};
 
-use backend::compute_backend::{SizedBuffer, SizedBufferMut, ComputeBackend};
+use backend::compute_backend::{SizedBuffer, SizedBufferMut, ComputeBackend, ArrayRegistry};
 
 pub type CLPlatformId = *const libc::c_void;
 pub type CLDeviceId = *const libc::c_void;
 pub type CLContext = *const libc::c_void;
 pub type CLCommandQueue = *const libc::c_void;
+pub type CLMem = *const libc::c_void;
 
 const CL_PLATFORM_PROFILE : u32 = 0x0900u32;
 const CL_PLATFORM_VERSION : u32 = 0x0901u32;
@@ -39,6 +40,8 @@ const CL_SUCCESS : i32 = 0i32;
 
 const CL_DEVICE_TYPE_ALL : u32 = 0xffffffffu32;
 
+const CL_MEM_READ_WRITE : u32 = 1u32;
+
 #[link(name = "OpenCL")]
 extern {
     fn clGetPlatformIDs(num_entries : u32, platforms : *mut CLPlatformId, num_platforms : *mut u32) -> i32;
@@ -49,6 +52,10 @@ extern {
     fn clCreateCommandQueue(context : CLContext, device : CLDeviceId, properties : u32, errcode_ret : *mut i32) -> CLCommandQueue;
     fn clReleaseContext(context : CLContext) -> i32;
     fn clReleaseCommandQueue(command_queue : CLCommandQueue) -> i32;
+    fn clCreateBuffer(context : CLContext, flags : u32, size : usize, host_ptr : *const libc::c_void, errcode_ret : *mut i32) -> CLMem;
+    fn clReleaseMemObject(memobj : CLMem) -> i32;
+    fn clEnqueueReadBuffer(command_queue : CLCommandQueue, buffer : CLMem, blocking_read : u32, offset : usize, size : usize, ptr : *const libc::c_void, num_events_in_wait_list : u32, event_wait_list : *const libc::c_void, event : *const libc::c_void) -> i32;
+    fn clEnqueueWriteBuffer(command_queue : CLCommandQueue, buffer : CLMem, blocking_write : u32, offset : usize, size : usize, ptr : *const libc::c_void, num_events_in_wait_list : u32, event_wait_list : *const libc::c_void, event : *const libc::c_void) -> i32;
 }
 
 pub struct CLPlatform {
@@ -64,6 +71,7 @@ pub struct CLDevice {
     id : CLDeviceId,
     context : Option<CLContext>,
     command_queue : Option<CLCommandQueue>,
+    array_registry : ArrayRegistry<CLMem>,
     name : String,
     vendor : String,
     version : String,
@@ -185,6 +193,7 @@ impl CLDevice {
             id : id,
             context : None,
             command_queue : None,
+            array_registry : ArrayRegistry::<CLMem>::new(),
             name : try!(CLDevice::get_string_info(id, CL_DEVICE_NAME)),
             vendor : try!(CLDevice::get_string_info(id, CL_DEVICE_VENDOR)),
             version : try!(CLDevice::get_string_info(id, CL_DEVICE_VERSION)),
@@ -293,17 +302,61 @@ impl ComputeBackend for CLDevice {
         return Ok(());
     }
 
-    fn create_array() -> u32 {
-        return 0u32;
+    fn create_array(&mut self, size : usize) -> Result<u32,String> {
+        if let Some(context) = self.context {
+            let mut retcode = CL_SUCCESS;
+            let array = unsafe {clCreateBuffer(context, CL_MEM_READ_WRITE, size, ptr::null(), &mut retcode) };
+            if retcode != CL_SUCCESS {
+                return Err(format!("Failed to allocate OpenCL array of size {} on device {}", size, self.get_name()));
+            }
+
+            return Ok(self.array_registry.register_array(array, size));
+        }
+        return Err(format!("No OpenCL context for device {}", self.get_name()));
     }
     
-    fn set_array(id : u32, array : &SizedBuffer) {
+    fn set_array(&self, id : u32, array : &SizedBuffer) -> Result<(),String> {
+        if let Some(command_queue) = self.command_queue {
+            let cl_mem = self.array_registry.get_array(id);
+            if array.get_raw_size() != self.array_registry.get_array_size(id) {
+                return Err(format!("OpenCL array {} and SizedBuffer differ in size ({} != {})", id, self.array_registry.get_array_size(id), array.get_raw_size()));
+            }
+
+            let retcode = unsafe { clEnqueueReadBuffer(command_queue, cl_mem, false as u32, 0, array.get_raw_size(), array.get_raw_ptr(), 0, ptr::null(), ptr::null()) };
+            if retcode != CL_SUCCESS {
+                return Err(format!("Failed to read {} bytes in OpenCL array {}", array.get_raw_size(), id));
+            }
+
+            return Ok(());
+        }
+        return Err(format!("No OpenCL command queue for device {}", self.get_name()));
     }
 
-    fn get_array(id : u32, array : &mut SizedBufferMut) {
+    fn get_array(&self, id : u32, array : &mut SizedBufferMut) -> Result<(),String> {
+        if let Some(command_queue) = self.command_queue {
+            let cl_mem = self.array_registry.get_array(id);
+            if array.get_raw_size() != self.array_registry.get_array_size(id) {
+                return Err(format!("OpenCL array {} and SizedBuffer differ in size ({} != {})", id, self.array_registry.get_array_size(id), array.get_raw_size()));
+            }
+
+            let retcode = unsafe { clEnqueueWriteBuffer(command_queue, cl_mem, false as u32, 0, array.get_raw_size(), array.get_raw_ptr_mut(), 0, ptr::null(), ptr::null()) };
+            if retcode != CL_SUCCESS {
+                return Err(format!("Failed to write {} bytes in OpenCL array {}", array.get_raw_size(), id));
+            }
+
+            return Ok(());
+        }
+        return Err(format!("No OpenCL command queue for device {}", self.get_name()));
     }
 
-    fn delete_array(id : u32) {
+    fn delete_array(&mut self, id : u32) -> Result<(),String> {
+        let array = self.array_registry.get_array(id);
+        self.array_registry.unregister_array(id);
+        let retcode = unsafe { clReleaseMemObject(array) };
+        if retcode != CL_SUCCESS {
+            return Err(format!("Failed to release OpenCL array {} on device {}", id, self.get_name()));
+        }
+        return Ok(());
     }
 
     fn finalize(&mut self) -> Result<(),String> {
