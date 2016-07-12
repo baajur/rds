@@ -105,12 +105,13 @@ impl<T : Sized + Clone> ArrayRegistry<T> {
         }
         else {
             self.array_list.push(array.clone());
+            self.array_size.push(size);
             return (self.array_list.len() - 1) as u32;
         }
     }
 
     pub fn get_array(&self, id : u32) -> T {
-        if id as usize > self.array_list.len() {
+        if id as usize >= self.array_list.len() {
             panic!("Querying array id {} which is not in the ArrayRegistry", id);
         }
         if self.array_size[id as usize] == 0 {
@@ -120,14 +121,14 @@ impl<T : Sized + Clone> ArrayRegistry<T> {
     }
 
     pub fn get_array_size(&self, id : u32) -> usize {
-        if id as usize > self.array_list.len() {
+        if id as usize >= self.array_list.len() {
             panic!("Querying array id {} which is not in the ArrayRegistry", id);
         }
         return self.array_size[id as usize];
     }
 
     pub fn unregister_array(&mut self, id : u32) {
-        if id as usize > self.array_list.len() {
+        if id as usize >= self.array_list.len() {
             panic!("Unregistering array id {} which is not in the ArrayRegistry", id);
         }
         self.array_size[id as usize] = 0;

@@ -1,4 +1,4 @@
-use types::complex::{c32,c64,Complex};
+use types::complex::{c32,c64};
 
 pub trait Cast<T : Copy> {
     fn cast(self) -> T;

@@ -322,7 +322,7 @@ impl ComputeBackend for CLDevice {
                 return Err(format!("OpenCL array {} and SizedBuffer differ in size ({} != {})", id, self.array_registry.get_array_size(id), array.get_raw_size()));
             }
 
-            let retcode = unsafe { clEnqueueReadBuffer(command_queue, cl_mem, false as u32, 0, array.get_raw_size(), array.get_raw_ptr(), 0, ptr::null(), ptr::null()) };
+            let retcode = unsafe { clEnqueueWriteBuffer(command_queue, cl_mem, true as u32, 0, array.get_raw_size(), array.get_raw_ptr(), 0, ptr::null(), ptr::null()) };
             if retcode != CL_SUCCESS {
                 return Err(format!("Failed to read {} bytes in OpenCL array {}", array.get_raw_size(), id));
             }
@@ -339,7 +339,7 @@ impl ComputeBackend for CLDevice {
                 return Err(format!("OpenCL array {} and SizedBuffer differ in size ({} != {})", id, self.array_registry.get_array_size(id), array.get_raw_size()));
             }
 
-            let retcode = unsafe { clEnqueueWriteBuffer(command_queue, cl_mem, false as u32, 0, array.get_raw_size(), array.get_raw_ptr_mut(), 0, ptr::null(), ptr::null()) };
+            let retcode = unsafe { clEnqueueReadBuffer(command_queue, cl_mem, true as u32, 0, array.get_raw_size(), array.get_raw_ptr_mut(), 0, ptr::null(), ptr::null()) };
             if retcode != CL_SUCCESS {
                 return Err(format!("Failed to write {} bytes in OpenCL array {}", array.get_raw_size(), id));
             }
@@ -363,7 +363,7 @@ impl ComputeBackend for CLDevice {
         let mut retcode = CL_SUCCESS;
 
         if let Some(command_queue) = self.command_queue {
-            let retcode = unsafe { clReleaseCommandQueue(command_queue) };
+            retcode = unsafe { clReleaseCommandQueue(command_queue) };
         }
         self.command_queue = None;
         if retcode != CL_SUCCESS {
@@ -371,7 +371,7 @@ impl ComputeBackend for CLDevice {
         }
 
         if let Some(context) = self.context {
-            let retcode = unsafe { clReleaseContext(context) };
+            retcode = unsafe { clReleaseContext(context) };
         }
         self.context = None;
         if retcode != CL_SUCCESS {
