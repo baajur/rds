@@ -1,5 +1,8 @@
+#[allow(unused_imports)]
 use array::NDArray;
+#[allow(unused_imports)]
 use backend;
+#[allow(unused_imports)]
 use backend::compute_backend::{SizedBuffer, ComputeBackend};
 
 #[test]

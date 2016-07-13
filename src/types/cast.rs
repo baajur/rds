@@ -1,5 +1,6 @@
 use types::complex::{c32,c64};
 
+/// Trait allowing to cast Self into T.
 pub trait Cast<T : Copy> {
     fn cast(self) -> T;
 }

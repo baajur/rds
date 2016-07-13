@@ -342,18 +342,18 @@ fn remove() {
 }
 
 #[test]
-fn join_split() {
+fn insert_split() {
     let mut array1d = NDArray::<f64>::new(&[3], 0.0);
     let mut array2d = NDArray::<f64>::new(&[3, 3], 0.0);
     let mut array3d = NDArray::<f64>::new(&[3, 3, 3], 0.0);
  
-    array1d.join(&NDArray::<f64>::new(&[2], 1.0));
+    array1d.insert(0, 3, &NDArray::<f64>::new(&[2], 1.0));
     assert!(array1d.split(0, 3) == NDArray::<f64>::new(&[2], 1.0));
     assert!(array1d == NDArray::<f64>::new(&[3], 0.0));
-    array2d.join(&NDArray::<f64>::new(&[3, 2], 1.0));
+    array2d.insert(1, 3, &NDArray::<f64>::new(&[3, 2], 1.0));
     assert!(array2d.split(1, 3) == NDArray::<f64>::new(&[3, 2], 1.0));
     assert!(array2d == NDArray::<f64>::new(&[3, 3], 0.0));
-    array3d.join(&NDArray::<f64>::new(&[3, 3, 2], 1.0));
+    array3d.insert(2, 3, &NDArray::<f64>::new(&[3, 3, 2], 1.0));
     assert!(array3d.split(2, 3) == NDArray::<f64>::new(&[3, 3, 2], 1.0));
     assert!(array3d == NDArray::<f64>::new(&[3, 3, 3], 0.0));
 }

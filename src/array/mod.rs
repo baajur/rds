@@ -93,7 +93,7 @@ pub trait NDDataMut<T : Clone + Display> : NDData<T> {
     /// Assign another NDData<T> to the NDDataMut<T>. The shapes need to be identical.
     fn assign(&mut self, other : &NDData<T>) {
         if self.dim() != self.dim() {
-            panic!("NDDataMut::assign(): other is not of the same dimension ({} != {})",  other.dim(), self.dim());
+            panic!("NDDataMut::assign(): other is not of the same dimensionality ({} != {})",  other.dim(), self.dim());
         }
 
         if self.shape() != other.shape() {
@@ -212,7 +212,7 @@ impl<T : Clone> NDArray<T> {
         }
     }
 
-    /// Reshape an NDArray. The size of the new shape (product of all its elements) must be equal 
+    /// Reshape this NDArray. The size of the new shape (product of all its elements) must be equal 
     /// to the size of the current shape.
     pub fn reshape(&mut self, new_shape : &[usize]) {
         let size1 = self.shape.iter().fold(1usize, |acc, &x| acc * x);
@@ -225,6 +225,9 @@ impl<T : Clone> NDArray<T> {
         self.strides = NDArray::<T>::compute_strides(&new_shape);
     }
 
+    /// Insert another NDData of the same dimensionality in this NDArray. The insertion is made 
+    /// at the position pos in the dimension dim. The shape of NDData need to be the same as 
+    /// this NDArray in every dimension except for the insertion dimension.
     pub fn insert(&mut self, dim : usize, pos : usize, other : &NDData<T>) {
         if dim >= self.dim() {
             panic!("NDArray::insert(): dim is greater than array dimension ({} >= {})", dim, self.dim());
@@ -274,6 +277,8 @@ impl<T : Clone> NDArray<T> {
         }
     }
 
+    /// Extract a sub part of this NDArray as a new NDArray. start and end are two index of the 
+    /// same dimensionality ad this NDArray.
     pub fn extract(&self, start : &[usize], end : &[usize]) -> NDArray<T> {
         if self.dim() != start.len() || self.dim() != end.len() {
             panic!("NDArray::extract(): start or end dimension is not the same as array dimension ({} != {} || {} != {})", start.len(), self.dim(), end.len(), self.dim());
@@ -317,6 +322,8 @@ impl<T : Clone> NDArray<T> {
         };
     }
 
+    /// Remove a part of this NDArray. The removal is made in dimension dim from the position start 
+    /// until end (not included). This can be seen as the opposite operation of insert.
     pub fn remove(&mut self, dim : usize, start : usize, end : usize) {
         if dim >= self.dim() {
             panic!("NDArray::remove(): dim is greater than array dimension ({} >= {})", dim, self.dim());
@@ -355,21 +362,9 @@ impl<T : Clone> NDArray<T> {
         }
     }
 
-    pub fn join(&mut self, other :  &NDData<T>) {
-        if self.dim() != other.dim() {
-            panic!("NDArray::join(): the two array are not of the same dimension ({} != {})", self.dim(), other.dim());
-        }
-        for i in 0..self.dim() {
-            if self.shape[i] != other.shape()[i] {
-                let end = self.shape[i];
-                self.insert(i, end, other);
-                return;
-            }
-        }
-        let end = self.shape[0];
-        self.insert(0, end, other);
-    }
-
+    /// Split this NDArray at position pos of dimension dim. The lower indices are kept in dim 
+    /// while the upper indices are returned. This is in fact an extract operation followed by a 
+    /// remove operation.
     pub fn split(&mut self, dim : usize, pos : usize) -> NDArray<T> {
         if dim >= self.dim() {
             panic!("NDArray::split(): dim is greater than array dimension ({} >= {})", dim, self.dim());

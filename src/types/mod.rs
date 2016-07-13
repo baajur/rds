@@ -1,9 +1,12 @@
+/// Module implementing floating point complex type compatible with BLAS.
 pub mod complex;
+/// Module implementing Cast trait for numerical types.
 pub mod cast;
 
 use types::complex::{c32, c64};
 use types::cast::Cast;
 
+/// Enumeration for the numerical type supported by RDS.
 pub enum RDSType {
     U8,
     U16,
@@ -19,7 +22,9 @@ pub enum RDSType {
     C64
 }
 
+/// Trait implemented by all the RDS supported types.
 pub trait RDSTyped : Cast<u8> + Cast<u16> + Cast<u32> + Cast<u64> + Cast<i8> + Cast<i16> + Cast<i32> + Cast<i64> + Cast<f32> + Cast<f64> + Cast<c32> + Cast<c64> {
+    /// Reflection function which allow to query the type in a generic context.
     fn t() -> RDSType;
 }
 

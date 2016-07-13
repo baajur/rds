@@ -1,7 +1,8 @@
-use array::{NDData, NDArray};
+use array::{NDArray};
 use array::edf::EDFFile;
 
 #[test]
+#[allow(unused_variables)]
 fn edf_read() {
     let file = EDFFile::new("test_vector/edf/test_generator.edf");
     for i in 0..16 {
@@ -10,6 +11,7 @@ fn edf_read() {
 }
 
 #[test]
+#[allow(unused_variables)]
 fn edfplus_read() {
     let file = EDFFile::new("test_vector/edf/test_generator_2.edf");
     for i in 0..12 {

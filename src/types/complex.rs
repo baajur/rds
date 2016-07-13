@@ -6,26 +6,36 @@ use std::ops::{Add,AddAssign,Div,DivAssign,Mul,MulAssign,Neg,Sub,SubAssign};
 use std::num::ParseFloatError;
 use std::str::FromStr;
 
+/// Trait defining basic operations on complex types.
 pub trait Complex<T> where Self : Sized + Copy {
 
+    /// Create a complex from a set of cartesian coordinates.
     fn cartesian(re : T, im : T) -> Self;
         
+    /// Create a complex from a set of polar coordinates.
     fn polar(abs : T, arg : T) -> Self;
 
+    /// Return the real part of the complex.
     fn re(self) -> T; 
 
+    /// Return the imaginary part of the complex.
     fn im(self) -> T; 
 
+    /// Return the absolute value of the complex.
     fn abs(self) -> T;
 
+    /// Return the argument of the complex.
     fn arg(self) -> T; 
 
+    /// Return a tuple forming the polar coordinates of the complex (abs,arg).
     fn to_polar(self) -> (T,T)  {
         (self.abs(), self.arg())
     }
 
+    /// Return the conjugate value of the complex.
     fn conj(self) -> Self;
 
+    /// Return the reciprocal value of the complex.
     fn reciprocal(self) -> Self;
 }
 

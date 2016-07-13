@@ -9,18 +9,22 @@ use std::str::FromStr;
 use types::cast::Cast;
 use array::NDArray;
 
+/// Structure representing an EDFFile.
 pub struct EDFFile {
     path : String,
 }
 
 impl EDFFile {
     
+    /// Allocate a new EDFFile structure with a given path. This function neither create nor open 
+    /// the file specified by the path.
     pub fn new(path : &str) -> EDFFile{
         EDFFile {
             path : path.to_string(),
         }
     }
 
+    /// Read signal number id (id starting at 0) from the EDFFile into an one dimension NDArray.
     pub fn read_signal<T : Copy>(&self, id : usize) -> Result<NDArray<T>,String> where i16 : Cast<T>{
         let mut header = [0u8;256];
         let mut signal = Vec::<T>::new();
