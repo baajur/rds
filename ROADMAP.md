@@ -4,7 +4,8 @@
 * ~~RDS type system~~
 * ~~Complex types~~
 * ~~Insert, extract, remove, join, split (extract + remove)~~
-* edf reader
+* ~~edf reader~~
+* update documentation
 
 0.0.4
 =====

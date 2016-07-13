@@ -1,0 +1,3 @@
+Test files were made by Teunis van Beelen and downloaded from here: 
+http://www.teuniz.net/edf_bdf_testfiles/
+No license is precised so I assumed copying them here is acceptable.

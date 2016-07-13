@@ -9,6 +9,8 @@ pub mod ndindex;
 pub mod csv;
 /// Numpy file support for loading and saving N-dimensional arrays.
 pub mod numpy;
+/// EDF file support for loading one dimensional signals.
+pub mod edf;
 
 use array::ndindex::NDIndex;
 use types::cast::Cast;

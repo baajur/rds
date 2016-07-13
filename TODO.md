@@ -3,11 +3,6 @@ array
 
 * Make generic transpose in place
 
-array::edf
-==========
-
-* edf reader
-
 array::hdf5
 ===========
 
